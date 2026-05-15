@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@umukino/bot-service",
   "version": "1.0.0",
   "private": true,
@@ -15,7 +15,9 @@
     "@nestjs/axios": "^3.0.2",
     "axios": "^1.6.8",
     "rxjs": "^7.8.1",
+    "ioredis": "^5.3.2",
     "@umukino/shared-types": "*",
+    "@umukino/shared-events": "*",
     "@umukino/board-data": "*"
   }
 }
