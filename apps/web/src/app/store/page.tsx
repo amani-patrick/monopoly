@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { api, getErrorMsg } from '@/lib/api';
 import { toast } from 'react-hot-toast';
-import { TrophyIcon, UserIcon, CyberIcon, NatureIcon, NeonIcon, ClassicIcon } from '@/components/l  ayout/Icons';
+import { TrophyIcon, UserIcon, CyberIcon, NatureIcon, NeonIcon, ClassicIcon } from '@/components/layout/Icons';
 
 const ITEMS = [
   { id: 'avatar_1', name: 'Golden King', type: 'avatar', price: 5000, emoji: <TrophyIcon /> },

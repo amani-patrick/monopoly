@@ -5,7 +5,7 @@ import {
   House, Hotel, ArrowUp, ArrowDown, Trash, Plus, Play, RefreshCw,
   Search, ExternalLink, Mail, Phone, CreditCard, LayoutDashboard,
   AlertTriangle, History, Gift, ShoppingBag, Languages, Palette,
-  Globe, Bell, MessageSquare, Handshake, Gavel, Ban, Clock,GavelIcon
+  Globe, Bell, MessageSquare, Handshake, Gavel, Ban, Clock
 } from 'lucide-react';
 import React from 'react';
 
