@@ -15,7 +15,7 @@ export class UserBan {
   reason: string;
 
   @Column({ type: 'timestamptz', nullable: true, name: 'expires_at' })
-  expiresAt: Date;
+  until: Date;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;

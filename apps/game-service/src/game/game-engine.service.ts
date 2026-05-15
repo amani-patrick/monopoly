@@ -182,7 +182,7 @@ export class GameEngineService {
       state = await this.movePlayer(state, player, total);
 
       // If doubles and not jailed, get another roll
-      if (isDoubles && player.status !== PlayerStatus.IN_JAIL && state.turnPhase === TurnPhase.END) {
+      if (isDoubles && state.turnPhase === TurnPhase.END) {
         state.turnPhase = TurnPhase.ROLL;
       }
     }
@@ -277,7 +277,7 @@ export class GameEngineService {
   // ============================================================
 
   private async handlePropertyLanding(state: GameState, player: Player, spaceIndex: number): Promise<GameState> {
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
 
     await this.eventBus.publish(GAME_EVENTS.PROPERTY_LANDED, { gameId: state.id, playerId: player.id, spaceIndex });
@@ -298,7 +298,7 @@ export class GameEngineService {
       return state;
     }
 
-    const owner = state.players.find((p: any) => p.id === propState.ownerId))!;
+    const owner = state.players.find((p: any) => p.id === propState.ownerId)!;
 
     // No rent from jailed owner (if setting enabled)
     if (state.settings.noRentInJail && owner.status === PlayerStatus.IN_JAIL) {
@@ -367,7 +367,7 @@ export class GameEngineService {
     if (player.balance < space.price) throw new BadRequestException('Insufficient balance');
 
     player.balance -= space.price;
-    const propState = state.properties.find((p: any) => p.spaceIndex === player.position))!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === player.position)!;
     propState.ownerId = player.id;
     player.properties.push(player.position);
 
@@ -423,7 +423,7 @@ export class GameEngineService {
       throw new BadRequestException('No active auction');
     }
 
-    const player = state.players.find((p: any) => p.id === playerId));
+    const player = state.players.find((p: any) => p.id === playerId);
     if (!player) throw new BadRequestException('Player not in game');
     if (player.balance < amount) throw new BadRequestException('Insufficient balance');
     if (amount <= state.activeAuction.currentBid) throw new BadRequestException('Bid must exceed current bid');
@@ -444,9 +444,9 @@ export class GameEngineService {
 
     const auction = state.activeAuction;
     if (auction.currentBidderId && auction.currentBid >= auction.startPrice) {
-      const winner = state.players.find((p: any) => p.id === auction.currentBidderId))!;
+      const winner = state.players.find((p: any) => p.id === auction.currentBidderId)!;
       winner.balance -= auction.currentBid;
-      const propState = state.properties.find((p: any) => p.spaceIndex === auction.spaceIndex))!;
+      const propState = state.properties.find((p: any) => p.spaceIndex === auction.spaceIndex)!;
       propState.ownerId = winner.id;
       winner.properties.push(auction.spaceIndex);
       auction.status = AuctionStatus.SOLD;
@@ -468,8 +468,8 @@ export class GameEngineService {
 
   async buildHouse(gameId: string, playerId: string, spaceIndex: number): Promise<GameState> {
     let state = await this.getState(gameId);
-    const player = state.players.find((p: any) => p.id === playerId))!;
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const player = state.players.find((p: any) => p.id === playerId)!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
 
     if (propState.ownerId !== playerId) throw new BadRequestException('You do not own this property');
@@ -479,11 +479,11 @@ export class GameEngineService {
 
     // Must own full color group
     const groupSize = COLOR_GROUP_SIZES[space.group!];
-    const owned = state.properties.filter((p: any) => BOARD_SPACES[p.spaceIndex]?.group === space.group && p.ownerId === playerId)).length;
+    const owned = state.properties.filter((p: any) => BOARD_SPACES[p.spaceIndex]?.group === space.group && p.ownerId === playerId).length;
     if (owned < groupSize) throw new BadRequestException('Must own full color group to build');
 
     // Must build evenly across group
-    const groupProps = state.properties.filter((p: any) => BOARD_SPACES[p.spaceIndex]?.group === space.group && p.ownerId === playerId));
+    const groupProps = state.properties.filter((p: any) => BOARD_SPACES[p.spaceIndex]?.group === space.group && p.ownerId === playerId);
     const minHouses = Math.min(...groupProps.map((p: any) => p.houses));
     if (propState.houses > minHouses) throw new BadRequestException('Must build evenly across all properties in group');
 
@@ -500,8 +500,8 @@ export class GameEngineService {
 
   async buildHotel(gameId: string, playerId: string, spaceIndex: number): Promise<GameState> {
     let state = await this.getState(gameId);
-    const player = state.players.find((p: any) => p.id === playerId))!;
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const player = state.players.find((p: any) => p.id === playerId)!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
 
     if (propState.ownerId !== playerId) throw new BadRequestException('You do not own this property');
@@ -522,8 +522,8 @@ export class GameEngineService {
   // BUG 8 FIX: sellHouse and sellHotel — players must be able to sell buildings to raise cash
   async sellHouse(gameId: string, playerId: string, spaceIndex: number): Promise<GameState> {
     let state = await this.getState(gameId);
-    const player = state.players.find((p: any) => p.id === playerId))!;
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const player = state.players.find((p: any) => p.id === playerId)!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
 
     if (propState.ownerId !== playerId) throw new BadRequestException('You do not own this property');
@@ -552,8 +552,8 @@ export class GameEngineService {
 
   async sellHotel(gameId: string, playerId: string, spaceIndex: number): Promise<GameState> {
     let state = await this.getState(gameId);
-    const player = state.players.find((p: any) => p.id === playerId))!;
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const player = state.players.find((p: any) => p.id === playerId)!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
 
     if (propState.ownerId !== playerId) throw new BadRequestException('You do not own this property');
@@ -577,8 +577,8 @@ export class GameEngineService {
 
   async mortgageProperty(gameId: string, playerId: string, spaceIndex: number): Promise<GameState> {
     let state = await this.getState(gameId);
-    const player = state.players.find((p: any) => p.id === playerId))!;
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const player = state.players.find((p: any) => p.id === playerId)!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
 
     if (propState.ownerId !== playerId) throw new BadRequestException('You do not own this property');
@@ -595,8 +595,8 @@ export class GameEngineService {
 
   async unmortgageProperty(gameId: string, playerId: string, spaceIndex: number): Promise<GameState> {
     let state = await this.getState(gameId);
-    const player = state.players.find((p: any) => p.id === playerId))!;
-    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex))!;
+    const player = state.players.find((p: any) => p.id === playerId)!;
+    const propState = state.properties.find((p: any) => p.spaceIndex === spaceIndex)!;
     const space = BOARD_SPACES[spaceIndex];
     const cost = Math.floor(space.mortgage! * 1.1);
 
@@ -777,8 +777,8 @@ export class GameEngineService {
   }
 
   private async executeTrade(state: GameState, trade: Trade): Promise<GameState> {
-    const from = state.players.find((p: any) => p.id === trade.fromPlayerId))!;
-    const to = state.players.find((p: any) => p.id === trade.toPlayerId))!;
+    const from = state.players.find((p: any) => p.id === trade.fromPlayerId)!;
+    const to = state.players.find((p: any) => p.id === trade.toPlayerId)!;
 
     // Transfer cash
     from.balance -= trade.offer.cash;
@@ -788,7 +788,7 @@ export class GameEngineService {
 
     // Transfer properties (offer)
     for (const spaceIdx of trade.offer.properties) {
-      const prop = state.properties.find((p: any) => p.spaceIndex === spaceIdx))!;
+      const prop = state.properties.find((p: any) => p.spaceIndex === spaceIdx)!;
       prop.ownerId = to.id;
       from.properties = from.properties.filter((p: any) => p !== spaceIdx);
       to.properties.push(spaceIdx);
@@ -796,7 +796,7 @@ export class GameEngineService {
 
     // Transfer properties (request)
     for (const spaceIdx of trade.request.properties) {
-      const prop = state.properties.find((p: any) => p.spaceIndex === spaceIdx))!;
+      const prop = state.properties.find((p: any) => p.spaceIndex === spaceIdx)!;
       prop.ownerId = from.id;
       to.properties = to.properties.filter((p: any) => p !== spaceIdx);
       from.properties.push(spaceIdx);
@@ -874,7 +874,7 @@ export class GameEngineService {
 
     // Release all properties back to bank
     for (const spaceIdx of player.properties) {
-      const prop = state.properties.find((p: any) => p.spaceIndex === spaceIdx))!;
+      const prop = state.properties.find((p: any) => p.spaceIndex === spaceIdx)!;
       prop.ownerId = null;
       prop.houses = 0;
       prop.hotel = false;
@@ -900,12 +900,12 @@ export class GameEngineService {
     state.finishedAt = new Date().toISOString();
 
     // Assign ranks: winner = 1, then active players by balance, then bankrupt players by bankruptAt (last bankrupt = best rank)
-    const winner = state.players.find((p: any) => p.id === winnerId))!;
+    const winner = state.players.find((p: any) => p.id === winnerId)!;
     winner.rank = 1;
 
     const bankruptPlayers = state.players
-      .filter((p: any) => p.status === PlayerStatus.BANKRUPT && p.bankruptAt))
-      .sort((a: any, b: any) => new Date(b.bankruptAt!).getTime() - new Date(a.bankruptAt!).getTime()); // most recently bankrupt = 2nd place
+      .filter((p: any) => p.status === PlayerStatus.BANKRUPT && p.bankruptAt)
+      .sort((a: any, b: any) => new Date(b.bankruptAt!).getTime() - new Date(a.bankruptAt!).getTime());
 
     bankruptPlayers.forEach((p: any, i: number) => { p.rank = i + 2; });
 
