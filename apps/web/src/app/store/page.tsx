@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { api, getErrorMsg } from '@/lib/api';
-import { toast } from '@/components/ui/Toast';  
+import { toast } from '@/components/ui/Toaster';
 import { TrophyIcon, UserIcon, CyberIcon, NatureIcon, NeonIcon, ClassicIcon } from '@/components/layout/Icons';
 
 const ITEMS = [
@@ -55,10 +55,10 @@ export default function StorePage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>
       <Navbar />
-      
+
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div style={{ 
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           marginBottom: '2rem', background: 'var(--bg-elevated)', padding: '1.5rem',
           borderRadius: '16px', border: '1px solid var(--border)'
         }}>
@@ -81,22 +81,22 @@ export default function StorePage() {
               padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center',
               transition: 'transform 0.2s', cursor: 'default'
             }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
-               onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
-              
+              onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+
               <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{item.emoji}</div>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>{item.name}</h3>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', textTransform: 'uppercase' }}>
                 {item.type}
               </div>
-              
+
               <div style={{ width: '100%', marginTop: 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>Price</span>
                   <span style={{ fontWeight: 600 }}>{item.price.toLocaleString()} RWF</span>
                 </div>
-                <button 
+                <button
                   onClick={() => buyItem(item)}
-                  className="btn-primary" 
+                  className="btn-primary"
                   style={{ width: '100%', borderRadius: '12px', fontSize: '0.9rem' }}
                 >
                   Purchase

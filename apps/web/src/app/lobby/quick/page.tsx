@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, getErrorMsg } from '@/lib/api';
-import {toast} from '@/components/ui/Toast';
+import { toast } from '@/components/ui/Toaster';
 import { Navbar } from '@/components/layout/Navbar';
 import { RefreshIcon } from '@/components/layout/Icons';
 
@@ -15,11 +15,11 @@ export default function QuickMatchPage() {
       try {
         setStatus('Searching for available games...');
         const { data: rooms } = await api.getPublicRooms();
-        
+
         // Find a room that is not full and not in-game
-        const availableRoom = rooms.find((r: any) => 
-          r.status === 'LOBBY' && 
-          r.playerCount < r.maxPlayers && 
+        const availableRoom = rooms.find((r: any) =>
+          r.status === 'LOBBY' &&
+          r.playerCount < r.maxPlayers &&
           !r.isPrivate
         );
 
@@ -50,7 +50,7 @@ export default function QuickMatchPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>
       <Navbar />
       <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center', 
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', height: '80vh', textAlign: 'center', padding: '2rem'
       }}>
         <div style={{ fontSize: '4rem', marginBottom: '1rem', color: 'var(--purple-light)' }} className="animate-spin-slow">
@@ -58,10 +58,10 @@ export default function QuickMatchPage() {
         </div>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Finding a Match</h1>
         <p style={{ color: 'var(--text-secondary)' }}>{status}</p>
-        
-        <button 
+
+        <button
           onClick={() => router.push('/')}
-          className="btn-secondary" 
+          className="btn-secondary"
           style={{ marginTop: '2rem', borderRadius: '50px' }}
         >
           Cancel

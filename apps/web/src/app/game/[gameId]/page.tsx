@@ -11,7 +11,7 @@ import { TradeModal } from '@/components/game/TradeModal';
 import { AuctionModal } from '@/components/game/AuctionModal';
 import { CardModal } from '@/components/game/CardModal';
 import { GameOverModal } from '@/components/game/GameOverModal';
-import { toast } from '@/components/ui/Toast';
+import { toast } from '@/components/ui/Toaster';
 
 interface GamePageProps {
   params: { gameId: string };
