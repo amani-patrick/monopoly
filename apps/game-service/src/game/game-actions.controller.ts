@@ -121,7 +121,7 @@ export class GameActionsController {
   @Post('games/:gameId/jail-pay')
   async jailPay(@Param('gameId') gameId: string, @Body() dto: PlayerActionDto) {
     let state = await this.engine.getState(gameId);
-    const player = state.players.find(p => p.id === dto.playerId);
+    const player = state.players.find((p: any) => p.id === dto.playerId);
     if (!player) throw new BadRequestException('Player not found');
     state = await this.engine.payJailFine(state, player);
     await this.engine.saveState(state);
@@ -156,3 +156,4 @@ export class GameActionsController {
     return this.chat.sendMessage(dto);
   }
 }
+

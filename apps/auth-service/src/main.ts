@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
-import * as compression from 'compression';
+import compression from 'compression';
 
 const logger = new Logger('AuthService');
 
@@ -42,7 +42,8 @@ async function bootstrap() {
   logger.log(`Auth service running on port ${port}`);
 }
 
-bootstrap().catch(err => {
+bootstrap().catch((err: any) => {
   logger.error('Auth service failed to start', err);
   process.exit(1);
 });
+

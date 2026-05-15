@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  transpilePackages: ['@umukino/shared-types', '@umukino/shared-events', '@umukino/board-data'],
   experimental: {
-    serverActions: { allowedOrigins: ['localhost:3000'] },
+    serverActions: process.env.NODE_ENV === 'development' 
+      ? { allowedOrigins: ['localhost:3000'] } 
+      : undefined,
   },
   images: {
     remotePatterns: [

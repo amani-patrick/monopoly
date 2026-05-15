@@ -207,8 +207,16 @@ export class AuthService {
   }
 
   async unbanUser(userId: string): Promise<void> {
-    await this.userRepo.update(userId, { isBanned: false, banReason: null, updatedAt: new Date() });
+    await this.userRepo.update(userId, { isBanned: false, banReason: undefined, updatedAt: new Date() });
     await this.redis.del(`auth:banned:${userId}`);
+  }
+
+  async getUsers(page: number, limit: number): Promise<[UserEntity[], number]> {
+    return this.userRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
   }
 
   // ============================================================

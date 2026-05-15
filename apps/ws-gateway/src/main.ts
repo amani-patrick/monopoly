@@ -11,4 +11,5 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3003);
   new Logger('WsGateway').log(`WebSocket gateway running on port ${process.env.PORT || 3003}`);
 }
-bootstrap().catch(e => { console.error(e); process.exit(1); });
+bootstrap().catch((e: any) => { console.error(e); process.exit(1); });
+

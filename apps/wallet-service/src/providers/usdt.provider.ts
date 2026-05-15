@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { v4 as uuid } from 'uuid';
@@ -92,7 +92,7 @@ export class UsdtProvider {
     }
 
     // LIVE: Use Binance Pay or TronWeb for TRC20 transfer
-    throw new Error('USDT live withdrawal not yet configured â€” set USDT_MOCK=false and configure provider');
+    throw new Error('USDT live withdrawal not yet configured — set USDT_MOCK=false and configure provider');
   }
 
   async getUsdtRate(): Promise<number> {
@@ -103,3 +103,4 @@ export class UsdtProvider {
 
   private delay(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 }
+

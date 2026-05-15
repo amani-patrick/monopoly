@@ -9,4 +9,6 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3007);
   new Logger('NotificationService').log(`Notification service running on port ${process.env.PORT || 3007}`);
 }
-bootstrap().catch(e => { console.error(e); process.exit(1); });
+bootstrap().catch((e: any) => { console.error(e); process.exit(1); });
+
+

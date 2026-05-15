@@ -109,7 +109,7 @@ export class AirtelMoneyProvider {
   }
 
   private async getToken(): Promise<string> {
-    if (this.accessToken && Date.now() < this.tokenExpiry) return this.accessToken;
+    if (this.accessToken && Date.now() < this.tokenExpiry) return this.accessToken!;
 
     const res = await this.client.post('/auth/oauth2/token', {
       client_id: this.config.get('AIRTEL_CLIENT_ID'),
@@ -119,7 +119,7 @@ export class AirtelMoneyProvider {
 
     this.accessToken = res.data.access_token;
     this.tokenExpiry = Date.now() + (res.data.expires_in - 60) * 1000;
-    return this.accessToken;
+    return this.accessToken!;
   }
 
   private formatPhone(phone: string): string {
@@ -134,3 +134,5 @@ export class AirtelMoneyProvider {
 
 
 // ============================================================
+
+

@@ -11,12 +11,10 @@ import {
   Wallet, Transaction, TransactionType,
   TransactionStatus, PaymentProvider,
 } from '@umukino/shared-types';
-import { WalletEntity } from './entities/wallet.entity';
-import { TransactionEntity } from './entities/transaction.entity';
+import { WalletEntity, TransactionEntity } from './entities/wallet.entity';
 import { MtnMomoProvider } from '../providers/mtn-momo.provider';
 import { AirtelMoneyProvider } from '../providers/airtel-money.provider';
 import { UsdtProvider } from '../providers/usdt.provider';
-
 const MIN_DEPOSIT = 500;      // 500 RWF
 const MAX_DEPOSIT = 5_000_000;
 const MIN_WITHDRAW = 1_000;
@@ -129,7 +127,7 @@ export class WalletService {
           ? `Send ${amount} RWF worth of USDT to ${providerResult.providerRef}`
           : `Check your phone (${phoneOrAddress}) to approve the payment`,
       };
-    } catch (err) {
+    } catch (err: any) {
       await this.txRepo.update(txId, { status: TransactionStatus.FAILED });
       throw err;
     }
@@ -212,7 +210,7 @@ export class WalletService {
           break;
       }
       await this.txRepo.update(txId, { status: TransactionStatus.COMPLETED, completedAt: new Date() });
-    } catch (err) {
+    } catch (err: any) {
       // Reverse the deduction on failure
       await this.dataSource.transaction(async (manager) => {
         await manager.increment(WalletEntity, { userId }, 'realBalance', total);
@@ -341,5 +339,7 @@ export class WalletService {
     }
   }
 }
+
+
 
 

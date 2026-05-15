@@ -37,7 +37,7 @@ export class GameController {
   @UseGuards(AuthGuard('jwt'))
   async getGame(@Param('gameId') gameId: string, @Req() req: any) {
     const state = await this.engine.getState(gameId);
-    const isPlayer = state.players.some(p => p.userId === req.user.sub);
+    const isPlayer = state.players.some((p: any) => p.userId === req.user.sub);
     // Spectators can read state but player actions are blocked in WS gateway
     if (!isPlayer) {
       const spectatorKey = `room:${state.roomId}:spectators`;
@@ -63,7 +63,7 @@ export class GameController {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');
     const keys = await this.engine['redis'].keys('game:*:state');
     const games = await Promise.all(
-      keys.slice(0, 50).map(async (k: string) => {
+      keys.slice(0, 50).map(async (k: any) => {
         const raw = await this.engine['redis'].get(k);
         if (!raw) return null;
         const s = JSON.parse(raw);
@@ -102,3 +102,4 @@ export class GameController {
     return { success: true };
   }
 }
+

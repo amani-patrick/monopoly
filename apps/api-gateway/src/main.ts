@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
-import * as compression from 'compression';
+import compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: ['error','warn','log'] });
@@ -18,4 +18,5 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 4000);
   new Logger('ApiGateway').log(`API Gateway running on port ${process.env.PORT || 4000}`);
 }
-bootstrap().catch(e => { console.error(e); process.exit(1); });
+bootstrap().catch((e: any) => { console.error(e); process.exit(1); });
+

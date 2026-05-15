@@ -1,7 +1,7 @@
 import {
   Controller, Post, Get, Put, Body, Param, Req,
   UseGuards, HttpCode, HttpStatus, ValidationPipe,
-  UsePipes,
+  UsePipes, ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
@@ -40,7 +40,7 @@ export class AuthController {
 
   // ---- Register ----
   @Post('auth/register')
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 per minute
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async register(@Body() dto: RegisterDto) {
     return this.auth.register(dto.email, dto.password, dto.displayName);
   }
@@ -102,13 +102,12 @@ export class AuthController {
     return { success: true };
   }
 
-  // ---- Internal (called by gateway with x-user header) ----
+  // ---- Internal ----
   @Get('users/:id')
   @UseGuards(AuthGuard('jwt'))
   async getUser(@Param('id') id: string, @Req() req: any) {
-    // Only allow self or admin
     if (req.user.sub !== id && req.user.role !== 'admin') {
-      throw new Error('Forbidden');
+      throw new ForbiddenException('Access denied');
     }
     return this.auth.getProfile(id);
   }
@@ -117,7 +116,7 @@ export class AuthController {
   @Get('admin/users')
   @UseGuards(AuthGuard('jwt'))
   async adminUsers(@Req() req: any) {
-    if (req.user.role !== 'admin') throw new Error('Forbidden');
+    if (req.user.role !== 'admin') throw new ForbiddenException('Admin access required');
     return this.auth.getUsers(1, 50);
   }
 
@@ -125,7 +124,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   async adminBan(@Param('userId') userId: string, @Body() body: { reason: string }, @Req() req: any) {
-    if (req.user.role !== 'admin') throw new Error('Forbidden');
+    if (req.user.role !== 'admin') throw new ForbiddenException('Admin access required');
     await this.auth.banUser(userId, body.reason);
     return { success: true };
   }
@@ -134,7 +133,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   async adminUnban(@Param('userId') userId: string, @Req() req: any) {
-    if (req.user.role !== 'admin') throw new Error('Forbidden');
+    if (req.user.role !== 'admin') throw new ForbiddenException('Admin access required');
     await this.auth.unbanUser(userId);
     return { success: true };
   }

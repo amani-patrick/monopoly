@@ -1,4 +1,4 @@
-﻿import { NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 
@@ -10,3 +10,4 @@ async function bootstrap() {
   logger.log(`Bot Service is running on: http://localhost:${port}`);
 }
 bootstrap();
+

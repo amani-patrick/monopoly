@@ -26,7 +26,7 @@ interface AuthSocket extends Socket {
 })
 @Injectable()
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() server: Server;
+  @WebSocketServer() server!: Server;
   private readonly logger = new Logger(GameGateway.name);
   private userSockets = new Map<string, string>();
   private disconnected = new Map<string, Set<string>>();
@@ -66,7 +66,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           this.disconnected.get(ag)?.delete(socket.userId);
         }
       }
-    } catch (e) { this.logger.warn(`Auth fail: ${e.message}`); socket.disconnect(); }
+    } catch (e: any) { this.logger.warn(`Auth fail: ${e.message}`); socket.disconnect(); }
   }
 
   async handleDisconnect(socket: AuthSocket) {
@@ -119,7 +119,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const sockets = await this.server.in(`room:${roomCode}`).fetchSockets();
       for (const rs of sockets) { rs.join(`game:${result.gameId}`); (rs as any).gameId = result.gameId; }
       this.server.to(`game:${result.gameId}`).emit(GAME_EVENTS.GAME_STARTED, result);
-    } catch (e) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
+    } catch (e: any) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
   }
 
   @SubscribeMessage('game:spectate')
@@ -129,7 +129,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       s.join(`game:${r.gameId}`); s.gameId = r.gameId; s.isSpectator = true;
       const state = await this.callGame('GET', `/games/${r.gameId}`, null, s.userId);
       s.emit(GAME_EVENTS.GAME_STATE_SYNC, { gameId: r.gameId, state });
-    } catch (e) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
+    } catch (e: any) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
   }
 
   @SubscribeMessage('game:join')
@@ -146,7 +146,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     try {
       const state = await this.callGame('POST', `/games/${s.gameId}${path}`, { playerId: s.userId, ...extra }, s.userId);
       this.server.to(`game:${s.gameId}`).emit(GAME_EVENTS.GAME_STATE_SYNC, { gameId: s.gameId, state });
-    } catch (e) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
+    } catch (e: any) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
   }
 
   @SubscribeMessage('game:roll')        async onRoll(   @ConnectedSocket() s: AuthSocket) { await this.gameAction(s, '/roll'); }
@@ -174,7 +174,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const state = await this.callGame('POST', `/games/${s.gameId}/trade-initiate`, { ...d, fromPlayerId: s.userId, userIp: s.handshake.address }, s.userId);
       this.server.to(`game:${s.gameId}`).emit(GAME_EVENTS.TRADE_INITIATED, { trade: state.activeTrade });
       this.server.to(`game:${s.gameId}`).emit(GAME_EVENTS.GAME_STATE_SYNC, { gameId: s.gameId, state });
-    } catch (e) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
+    } catch (e: any) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
   }
 
   @SubscribeMessage('game:trade_respond')
@@ -193,7 +193,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const ch = gameId ? `game:${gameId}` : `room:${roomId}`;
       if (result?.message) this.server.to(ch).emit('chat:message', result.message);
       if (result?.banned) { s.emit('chat:banned', result); s.disconnect(); }
-    } catch (e) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
+    } catch (e: any) { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); }
   }
 
   private bridgeRedis() {
@@ -220,3 +220,4 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return data;
   }
 }
+

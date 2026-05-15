@@ -10,7 +10,8 @@ import { WalletController } from './wallet/wallet.controller';
 import { WalletService } from './wallet/wallet.service';
 import { WalletEntity, TransactionEntity } from './wallet/entities/wallet.entity';
 import { MtnMomoProvider } from './providers/mtn-momo.provider';
-import { AirtelMoneyProvider, UsdtProvider } from './providers/airtel-usdt.provider';
+import { AirtelMoneyProvider } from './providers/airtel-money.provider';
+import { UsdtProvider } from './providers/usdt.provider';
 import { JwtStrategy } from './guards/jwt.strategy';
 
 @Module({
@@ -44,3 +45,4 @@ import { JwtStrategy } from './guards/jwt.strategy';
   providers: [WalletService, MtnMomoProvider, AirtelMoneyProvider, UsdtProvider, JwtStrategy],
 })
 export class AppModule {}
+

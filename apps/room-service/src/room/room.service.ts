@@ -73,7 +73,7 @@ export class RoomService {
     if (!room) throw new NotFoundException('Room not found');
     if (room.status !== 'LOBBY') throw new BadRequestException('Game already in progress — use /spectate to watch');
     if (room.players.length >= room.settings.maxPlayers) throw new BadRequestException('Room is full');
-    if (room.players.some(p => p.userId === userId)) return room;
+    if (room.players.some((p: any) => p.userId === userId)) return room;
 
     const dbRoom = await this.roomRepo.findOneOrFail({ where: { id: room.id } });
     if (dbRoom.entryFeeRwf > 0) {
@@ -91,11 +91,11 @@ export class RoomService {
     if (!room) throw new NotFoundException('Room not found');
     const dbRoom = await this.roomRepo.findOne({ where: { id: room.id } });
 
-    if (dbRoom?.entryFeeRwf > 0 && room.status === 'LOBBY') {
+    if ((dbRoom?.entryFeeRwf || 0) > 0 && room.status === 'LOBBY') {
       await this.releaseHold(userId, room.id);
     }
 
-    room.players = room.players.filter(p => p.userId !== userId);
+    room.players = room.players.filter((p: any) => p.userId !== userId);
     if (room.hostId === userId && room.players.length > 0) room.hostId = room.players[0].userId;
 
     if (room.players.length === 0) {
@@ -110,7 +110,7 @@ export class RoomService {
   async setReady(codeOrId: string, userId: string, ready: boolean): Promise<Room> {
     const room = await this.getRoomByIdOrCode(codeOrId);
     if (!room) throw new NotFoundException('Room not found');
-    const p = room.players.find(p => p.userId === userId);
+    const p = room.players.find((p: any) => p.userId === userId);
     if (p) p.ready = ready;
     await this.saveRoomState(room);
     return room;
@@ -143,7 +143,7 @@ export class RoomService {
     const { data: gameData } = await firstValueFrom(
       this.http.post(`${this.gameUrl}/games/init`, {
         roomId: room.id,
-        players: players.map(p => ({
+        players: players.map((p: any) => ({
           id: uuid(), userId: p.userId, displayName: p.displayName,
           avatar: p.avatar, color: p.avatar, isBot: p.isBot, connected: true,
         })),
@@ -252,3 +252,4 @@ export class RoomService {
   }
   private generateCode() { return Math.random().toString(36).substring(2, 7).toUpperCase(); }
 }
+

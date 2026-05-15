@@ -13,9 +13,6 @@ export class EventBusService {
     const payload = JSON.stringify({ event, data, ts: new Date().toISOString() });
     try {
       await this.redis.publish(REDIS_CHANNELS.GAME_EVENTS, payload);
-    } catch (err) {
-      this.logger.error(`EventBus publish failed [${event}]: ${err.message}`);
-    }
   }
 
   async publishPayment(event: string, data: Record<string, unknown>): Promise<void> {

@@ -96,3 +96,4 @@ export class WalletController {
     return this.wallet.getTransactions(undefined as any, parseInt(page));
   }
 }
+

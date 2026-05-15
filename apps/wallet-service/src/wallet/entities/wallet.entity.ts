@@ -28,3 +28,4 @@ export class TransactionEntity {
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' }) createdAt: Date;
   @Column({ nullable: true, type: 'timestamptz', name: 'completed_at' }) completedAt?: Date;
 }
+

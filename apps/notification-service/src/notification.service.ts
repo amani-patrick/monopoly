@@ -95,7 +95,7 @@ export class NotificationService implements OnModuleInit {
     );
   }
 
-  private async sendEmail(to: string, subject: string, html: string): Promise<void> {
+  public async sendEmail(to: string, subject: string, html: string): Promise<void> {
     if (!this.config.get('SMTP_USER')) {
       this.logger.debug(`[EMAIL MOCK] To: ${to} | Subject: ${subject}`);
       return;
@@ -155,3 +155,4 @@ export class NotificationService implements OnModuleInit {
     `;
   }
 }
+
