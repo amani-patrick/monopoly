@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { PublicRoomsList } from '@/components/lobby/PublicRoomsList';
 import { HowToPlay } from '@/components/landing/HowToPlay';
 import { useAuth } from '@/hooks/useAuth';
+import { DiceIcon, PlayIcon, UsersIcon, LockIcon, ChevronDownIcon } from '@/components/layout/Icons';
 
 const FLOATERS = [
   { emoji: '🏦', x: 8,  y: 25, size: 52, delay: 0 },
@@ -54,7 +55,9 @@ export default function HomePage() {
         }} />
 
         <div className="animate-slide-up" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: '80px', marginBottom: '0.75rem' }} className="animate-dice">🎲</div>
+          <div style={{ fontSize: '80px', marginBottom: '0.75rem', color: 'var(--purple-light)' }} className="animate-dice">
+            <DiceIcon />
+          </div>
 
           <h1 style={{
             fontSize: 'clamp(2.8rem,8vw,5.5rem)', fontWeight: 900,
@@ -91,15 +94,15 @@ export default function HomePage() {
               className="btn-primary animate-glow"
               style={{ fontSize: '1.15rem', padding: '0.95rem 3.5rem', borderRadius: '50px' }}
             >
-              <span>▶▶</span> Play
+              <PlayIcon /> Play
             </Link>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button onClick={() => { setShowRooms(v => !v); setTimeout(() => document.getElementById('rooms')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                 className="btn-secondary" style={{ borderRadius: '50px', gap: '8px' }}>
-                👥 All rooms
+                <UsersIcon /> All rooms
               </button>
               <Link href="/lobby/create" className="btn-secondary" style={{ borderRadius: '50px', gap: '8px' }}>
-                🔒 Create a private game
+                <LockIcon /> Create a private game
               </Link>
             </div>
           </div>
@@ -112,7 +115,7 @@ export default function HomePage() {
           animation: 'float 2.5s ease-in-out infinite',
         }}>
           <div>Scroll down to see rooms & rules</div>
-          <div style={{ marginTop: 4 }}>↓</div>
+          <div style={{ marginTop: 4 }}><ChevronDownIcon /></div>
         </div>
       </section>
 

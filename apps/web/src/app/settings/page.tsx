@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { api, getErrorMsg } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { SettingsIcon, ShieldIcon, AlertIcon, LanguageIcon, LockIcon } from '@/components/layout/Icons';
 
 export default function SettingsPage() {
   const { user, mutate } = useAuth();
@@ -64,10 +65,14 @@ export default function SettingsPage() {
             background: 'var(--bg-elevated)', padding: '1.5rem', 
             borderRadius: '16px', border: '1px solid var(--border)' 
           }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>General</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <SettingsIcon /> General
+            </h2>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontWeight: 600 }}>Language</div>
+                <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <LanguageIcon /> Language
+                </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Choose your preferred language</div>
               </div>
               <div style={{ display: 'flex', background: 'var(--bg-base)', borderRadius: '12px', padding: '4px' }}>
@@ -96,10 +101,14 @@ export default function SettingsPage() {
             background: 'var(--bg-elevated)', padding: '1.5rem', 
             borderRadius: '16px', border: '1px solid var(--border)' 
           }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>Security</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldIcon /> Security
+            </h2>
             <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Current Password</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <LockIcon /> Current Password
+                </label>
                 <input 
                   type="password" 
                   value={oldPassword}
@@ -154,7 +163,9 @@ export default function SettingsPage() {
             borderRadius: '16px', border: '1px solid var(--border)',
             opacity: 0.6, pointerEvents: 'none'
           }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--red-light)' }}>Danger Zone</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--red-light)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertIcon /> Danger Zone
+            </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Deleting your account is permanent.</p>
             <button className="btn-secondary" style={{ color: 'var(--red-light)', borderColor: 'var(--red-light)' }}>Delete Account</button>
           </section>

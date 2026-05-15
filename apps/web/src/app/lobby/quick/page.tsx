@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { api, getErrorMsg } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { Navbar } from '@/components/layout/Navbar';
+import { RefreshIcon } from '@/components/layout/Icons';
 
 export default function QuickMatchPage() {
   const router = useRouter();
@@ -52,7 +53,9 @@ export default function QuickMatchPage() {
         display: 'flex', flexDirection: 'column', alignItems: 'center', 
         justifyContent: 'center', height: '80vh', textAlign: 'center', padding: '2rem'
       }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }} className="animate-spin-slow">⏳</div>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem', color: 'var(--purple-light)' }} className="animate-spin-slow">
+          <RefreshIcon />
+        </div>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Finding a Match</h1>
         <p style={{ color: 'var(--text-secondary)' }}>{status}</p>
         

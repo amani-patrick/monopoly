@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { api, getErrorMsg } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import { TrophyIcon, UserIcon, CyberIcon, NatureIcon, NeonIcon, ClassicIcon } from '@/components/l  ayout/Icons';
 
 const ITEMS = [
-  { id: 'avatar_1', name: 'Golden King', type: 'avatar', price: 5000, emoji: '👑' },
-  { id: 'avatar_2', name: 'Cyber Punk', type: 'avatar', price: 3500, emoji: '🦾' },
-  { id: 'avatar_3', name: 'Nature Spirit', type: 'avatar', price: 2000, emoji: '🍃' },
-  { id: 'skin_1', name: 'Neon Board', type: 'skin', price: 10000, emoji: '🌈' },
-  { id: 'skin_2', name: 'Classic Wood', type: 'skin', price: 1500, emoji: '🪵' },
+  { id: 'avatar_1', name: 'Golden King', type: 'avatar', price: 5000, emoji: <TrophyIcon /> },
+  { id: 'avatar_2', name: 'Cyber Punk', type: 'avatar', price: 3500, emoji: <CyberIcon /> },
+  { id: 'avatar_3', name: 'Nature Spirit', type: 'avatar', price: 2000, emoji: <NatureIcon /> },
+  { id: 'skin_1', name: 'Neon Board', type: 'skin', price: 10000, emoji: <NeonIcon /> },
+  { id: 'skin_2', name: 'Classic Wood', type: 'skin', price: 1500, emoji: <ClassicIcon /> },
 ];
 
 export default function StorePage() {
