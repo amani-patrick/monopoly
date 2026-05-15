@@ -5,11 +5,11 @@ import {
   House, Hotel, ArrowUp, ArrowDown, Trash, Plus, Play, RefreshCw,
   Search, ExternalLink, Mail, Phone, CreditCard, LayoutDashboard,
   AlertTriangle, History, Gift, ShoppingBag, Languages, Palette,
-  Globe, Bell, MessageSquare, Handshake, Gavel, Ban, Clock
+  Globe, Bell, MessageSquare, Handshake, Gavel, Ban, Clock,GavelIcon
 } from 'lucide-react';
 import React from 'react';
 
-// Centralized Lucide icons — standardizing on 16x16 with 2px stroke
+
 const iconProps = {
   size: 16,
   strokeWidth: 2,
@@ -65,3 +65,4 @@ export const TradeIcon     = () => <Handshake {...iconProps} />;
 export const AuctionIcon   = () => <Gavel {...iconProps} />;
 export const BanIcon       = () => <Ban {...iconProps} />;
 export const ClockIcon     = () => <Clock {...iconProps} />;
+export const GavelIcon     = () => <Gavel {...iconProps} />;

@@ -3,15 +3,10 @@ const nextConfig = {
   output: 'standalone',
   transpilePackages: ['@umukino/shared-types', '@umukino/shared-events', '@umukino/board-data'],
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
     ignoreDuringBuilds: true,
   },
   experimental: {
@@ -19,7 +14,7 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google avatars
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, 
     ],
   },
   async rewrites() {
