@@ -49,10 +49,10 @@ services:
     volumes:
       - mongodb-data:/data/db
     healthcheck:
-      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      test: ['CMD-SHELL', 'mongosh', '--eval', 'db.adminCommand("ping")']
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 20
     networks: [umukino-net]
 
   redis:
