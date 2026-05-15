@@ -231,7 +231,7 @@ export interface GameSettings {
   allowBots: boolean;
   onlyLoggedIn: boolean;
   doubleRentFullSet: boolean;
-  vacationCash: boolean;    // free parking jackpot
+  vacationCash: boolean; 
   auctionEnabled: boolean;
   noRentInJail: boolean;
   startingBalance: number;  // default 150000 RWF (in-game money only)

@@ -1,17 +1,7 @@
 'use client';
 
 import { WalletIcon, ShieldIcon, BanIcon, ClockIcon, CrownIcon } from '../layout/Icons';
-
-interface Player {
-  id: string;
-  userId: string;
-  displayName: string;
-  balance: number;
-  position: number;
-  color: string;
-  status: string; 
-  avatar?: string;
-}
+import type { Player, PlayerStatus } from '@umukino/shared-types';
 
 interface PlayerPanelProps {
   players: Player[];
@@ -32,7 +22,7 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
           Live
         </span>
       </div>
-      
+
       <div className="space-y-3">
         {sortedPlayers.map((player, index) => {
           const isCurrentTurn = player.id === currentPlayerId;
@@ -40,7 +30,7 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
           const isBankrupt = player.status === 'BANKRUPT';
           const isJailed = player.status === 'IN_JAIL';
           const isDisconnected = player.status === 'DISCONNECTED';
-          
+
           return (
             <div
               key={player.id}
@@ -56,8 +46,8 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
               <div
                 className={`
                   relative p-4 rounded-2xl border backdrop-blur-sm transition-all
-                  ${isCurrentTurn 
-                    ? 'bg-purple-500/10 border-purple-500/30' 
+                  ${isCurrentTurn
+                    ? 'bg-purple-500/10 border-purple-500/30'
                     : 'bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.06]'
                   }
                   ${isBankrupt ? 'opacity-40 grayscale' : ''}
@@ -65,14 +55,14 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
-                    {/* Avatar / Color Circle */}
+                    {/* Avatar */}
                     <div className="relative">
-                      <div 
+                      <div
                         className="w-10 h-10 rounded-xl border-2 flex items-center justify-center text-lg font-black shadow-lg"
-                        style={{ 
+                        style={{
                           backgroundColor: `${player.color}20`,
                           borderColor: player.color,
-                          color: player.color 
+                          color: player.color
                         }}
                       >
                         {player.displayName[0].toUpperCase()}
@@ -89,8 +79,10 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
                         {isMe && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded-md border border-purple-500/20 uppercase tracking-tighter">Me</span>}
                       </h4>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] text-white/40 uppercase font-bold tracking-wider">Active</span>
+                        <div className={`w-1.5 h-1.5 rounded-full ${player.connected ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+                        <span className="text-[10px] text-white/40 uppercase font-bold tracking-wider">
+                          {player.connected ? 'Online' : 'Offline'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -101,7 +93,7 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
                     </div>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-white/5 rounded-xl p-2 border border-white/5">
                     <div className="flex items-center gap-1.5 text-[10px] text-white/30 uppercase font-bold mb-1">
@@ -114,10 +106,10 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
 
                   <div className="bg-white/5 rounded-xl p-2 border border-white/5">
                     <div className="flex items-center gap-1.5 text-[10px] text-white/30 uppercase font-bold mb-1">
-                      <ClockIcon /> Position
+                      <ClockIcon /> Space
                     </div>
                     <div className="text-sm font-black text-white/80">
-                      Space {player.position}
+                      #{player.position}
                     </div>
                   </div>
                 </div>
@@ -129,8 +121,13 @@ export const PlayerPanel = ({ players, currentPlayerId, myId }: PlayerPanelProps
                       <ShieldIcon /> In Prison
                     </div>
                   )}
-                  {isDisconnected && (
+                  {isBankrupt && (
                     <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 uppercase">
+                      <BanIcon /> Bankrupt
+                    </div>
+                  )}
+                  {isDisconnected && !isBankrupt && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-500/10 border border-gray-500/20 text-[10px] font-bold text-gray-400 uppercase">
                       <BanIcon /> Offline
                     </div>
                   )}

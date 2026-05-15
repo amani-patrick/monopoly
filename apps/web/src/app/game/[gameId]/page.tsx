@@ -280,13 +280,18 @@ export default function GamePage({ params }: GamePageProps) {
         />
       )}
 
-      {useGameStore.getState().activeTrade && (
-        <TradeModal
-          trade={useGameStore.getState().activeTrade!}
-          onAccept={() => actions.respondTrade(true)}
-          onReject={() => actions.respondTrade(false)}
-        />
-      )}
+      {useGameStore.getState().activeTrade && (() => {
+        const trade = useGameStore.getState().activeTrade!;
+        const fromPlayer = gameState.players.find(p => p.id === trade.fromPlayerId);
+        return (
+          <TradeModal
+            trade={trade}
+            fromPlayerName={fromPlayer?.displayName ?? 'Opponent'}
+            onAccept={() => actions.respondTrade(true)}
+            onReject={() => actions.respondTrade(false)}
+          />
+        );
+      })()}
 
       {useGameStore.getState().activeAuction && (
         <AuctionModal
