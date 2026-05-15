@@ -23,6 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN mkdir -p apps/web/public
 
 # Build shared packages first if they aren't pre-built
 RUN cd packages/shared-types && npx tsc --outDir dist --declaration 2>/dev/null || true
