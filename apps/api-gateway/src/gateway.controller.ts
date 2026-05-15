@@ -273,7 +273,7 @@ export class GatewayController {
         }),
       );
       return res.data;
-    } catch (err) {
+    } catch (err: any) {
       const status = err.response?.status || HttpStatus.INTERNAL_SERVER_ERROR;
       const message = err.response?.data?.message || err.message || 'Service error';
       this.logger.error(`Proxy error [${service}] ${method} ${path}: ${message}`);
