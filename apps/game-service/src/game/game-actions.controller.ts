@@ -142,7 +142,7 @@ export class GameActionsController {
   async tradeInitiate(@Param('gameId') gameId: string, @Body() dto: TradeInitDto) {
     return this.proxy.initiateTrade(
       gameId, dto.fromPlayerId, dto.toPlayerId,
-      dto.offer, dto.request, dto.message, dto.userIp,
+      dto.offer, dto.request, dto.message,
     );
   }
 

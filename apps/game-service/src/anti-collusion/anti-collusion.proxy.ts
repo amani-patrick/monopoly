@@ -40,7 +40,6 @@ export class AntiCollusionGameProxy {
 
   async onPlayerBankrupt(state: GameState, player: Player, creditorId: string | null): Promise<void> {
     if (!this.anticheat.isPaidLobby(state)) return;
-    // Note: simplified or extended depending on implementation
   }
 
   async onGameFinished(state: GameState): Promise<void> {
@@ -59,7 +58,7 @@ export class AntiCollusionGameProxy {
     return inShadow.suspicious ? 'shadow' : 'standard';
   }
 
-  // Pass-through & Missing methods
+  // Pass-through methods
   getState(gameId: string) { return this.engine.getState(gameId); }
   buyProperty(g: string, p: string) { return this.engine.buyProperty(g, p); }
   skipBuy(g: string, p: string) { return this.engine.skipBuy(g, p); }
@@ -74,4 +73,5 @@ export class AntiCollusionGameProxy {
   useJailFreeCard(g: string, p: string) { return this.engine.useJailFreeCard(g, p); }
   respondTrade(g: string, p: string, a: boolean) { return this.engine.respondTrade(g, p, a); }
   endTurn(g: string, p: string) { return this.engine.endTurn(g, p); }
+  payJailFine(s: any, p: any) { return this.engine.payJailFine(s, p); }
 }

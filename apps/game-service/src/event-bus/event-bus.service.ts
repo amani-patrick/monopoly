@@ -13,15 +13,26 @@ export class EventBusService {
     const payload = JSON.stringify({ event, data, ts: new Date().toISOString() });
     try {
       await this.redis.publish(REDIS_CHANNELS.GAME_EVENTS, payload);
+    } catch (e: any) {
+      this.logger.error(`Failed to publish event ${event}: ${e.message}`);
+    }
   }
 
   async publishPayment(event: string, data: Record<string, unknown>): Promise<void> {
     const payload = JSON.stringify({ event, data, ts: new Date().toISOString() });
-    await this.redis.publish(REDIS_CHANNELS.PAYMENT_EVENTS, payload);
+    try {
+      await this.redis.publish(REDIS_CHANNELS.PAYMENT_EVENTS, payload);
+    } catch (e: any) {
+      this.logger.error(`Failed to publish payment ${event}: ${e.message}`);
+    }
   }
 
   async publishNotification(event: string, data: Record<string, unknown>): Promise<void> {
     const payload = JSON.stringify({ event, data, ts: new Date().toISOString() });
-    await this.redis.publish(REDIS_CHANNELS.NOTIFICATION_EVENTS, payload);
+    try {
+      await this.redis.publish(REDIS_CHANNELS.NOTIFICATION_EVENTS, payload);
+    } catch (e: any) {
+      this.logger.error(`Failed to publish notification ${event}: ${e.message}`);
+    }
   }
 }
