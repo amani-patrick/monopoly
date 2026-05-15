@@ -1,7 +1,7 @@
 # 🎲 UMUKINO — Rwanda Monopoly Platform
 
 Real-money Monopoly-style board game platform built for Rwanda.
-Play in RWF, pay with MTN MoMo / Airtel Money / USDT.
+
 
 ---
 
