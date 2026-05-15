@@ -1,0 +1,21 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import helmet from 'helmet';
+import * as compression from 'compression';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, { logger: ['error','warn','log'] });
+  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(compression());
+  app.enableCors({
+    origin: [process.env.FRONTEND_URL||'http://localhost:3000'],
+    methods: ['GET','POST','PUT','DELETE','OPTIONS','PATCH'],
+    allowedHeaders: ['Content-Type','Authorization','x-user'],
+    credentials: true,
+  });
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  await app.listen(process.env.PORT || 4000);
+  new Logger('ApiGateway').log(`API Gateway running on port ${process.env.PORT || 4000}`);
+}
+bootstrap().catch(e => { console.error(e); process.exit(1); });

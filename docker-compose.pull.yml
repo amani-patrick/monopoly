@@ -1,0 +1,50 @@
+# ============================================================
+# docker-compose.pull.yml
+#
+# Use this file to pull pre-built images from GitHub Container
+# Registry instead of building locally:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.pull.yml up -d
+#
+# Make sure you're logged in first:
+#   echo $GITHUB_TOKEN | docker login ghcr.io -u amani-patrick --password-stdin
+# ============================================================
+
+version: '3.9'
+
+services:
+  auth-service:
+    image: ghcr.io/amani-patrick/umukino/auth-service:latest
+    build: !reset null
+
+  game-service:
+    image: ghcr.io/amani-patrick/umukino/game-service:latest
+    build: !reset null
+
+  ws-gateway:
+    image: ghcr.io/amani-patrick/umukino/ws-gateway:latest
+    build: !reset null
+
+  wallet-service:
+    image: ghcr.io/amani-patrick/umukino/wallet-service:latest
+    build: !reset null
+
+  room-service:
+    image: ghcr.io/amani-patrick/umukino/room-service:latest
+    build: !reset null
+
+  leaderboard-service:
+    image: ghcr.io/amani-patrick/umukino/leaderboard-service:latest
+    build: !reset null
+
+  notification-service:
+    image: ghcr.io/amani-patrick/umukino/notification-service:latest
+    build: !reset null
+
+  api-gateway:
+    image: ghcr.io/amani-patrick/umukino/api-gateway:latest
+    build: !reset null
+
+  web:
+    image: ghcr.io/amani-patrick/umukino/web:latest
+    build: !reset null

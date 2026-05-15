@@ -1,0 +1,21 @@
+﻿{
+  "name": "@umukino/bot-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/config": "^3.2.0",
+    "@nestjs/axios": "^3.0.2",
+    "axios": "^1.6.8",
+    "rxjs": "^7.8.1",
+    "@umukino/shared-types": "*",
+    "@umukino/board-data": "*"
+  }
+}

@@ -1,0 +1,325 @@
+version: '3.9'
+
+networks:
+  umukino-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mongodb-data:
+  redis-data:
+  minio-data:
+
+services:
+
+  # ============================================================
+  # DATABASES
+  # ============================================================
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: umukino-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-umukino}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-umukino_dev_pw}
+      POSTGRES_DB: ${POSTGRES_DB:-umukino}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-umukino}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  mongodb:
+    image: mongo:7-jammy
+    container_name: umukino-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-umukino}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-umukino_dev_pw}
+      MONGO_INITDB_DATABASE: umukino
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  redis:
+    image: redis:7-alpine
+    container_name: umukino-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks: [umukino-net]
+
+  minio:
+    image: minio/minio:latest
+    container_name: umukino-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  # ============================================================
+  # BACKEND SERVICES
+  # ============================================================
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: umukino-auth
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-umukino}:${POSTGRES_PASSWORD:-umukino_dev_pw}@postgres:5432/${POSTGRES_DB:-umukino}
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change_me_refresh_secret_256bit}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:3001/auth/google/callback}
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  game-service:
+    build:
+      context: .
+      dockerfile: apps/game-service/Dockerfile
+    container_name: umukino-game
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://${POSTGRES_USER:-umukino}:${POSTGRES_PASSWORD:-umukino_dev_pw}@postgres:5432/${POSTGRES_DB:-umukino}
+      MONGODB_URI: mongodb://${MONGO_USER:-umukino}:${MONGO_PASSWORD:-umukino_dev_pw}@mongodb:27017/umukino?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+    ports:
+      - '3002:3002'
+    depends_on:
+      postgres: { condition: service_healthy }
+      mongodb: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3002/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  ws-gateway:
+    build:
+      context: .
+      dockerfile: apps/ws-gateway/Dockerfile
+    container_name: umukino-ws
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      GAME_SERVICE_URL: http://game-service:3002
+    ports:
+      - '3003:3003'
+    depends_on:
+      redis: { condition: service_healthy }
+      game-service: { condition: service_healthy }
+    networks: [umukino-net]
+
+  wallet-service:
+    build:
+      context: .
+      dockerfile: apps/wallet-service/Dockerfile
+    container_name: umukino-wallet
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      DATABASE_URL: postgresql://${POSTGRES_USER:-umukino}:${POSTGRES_PASSWORD:-umukino_dev_pw}@postgres:5432/${POSTGRES_DB:-umukino}
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+      # MTN MoMo (mocked by default)
+      MTN_MOMO_MOCK: ${MTN_MOMO_MOCK:-true}
+      MTN_MOMO_SUBSCRIPTION_KEY: ${MTN_MOMO_SUBSCRIPTION_KEY:-}
+      MTN_MOMO_COLLECTION_USER_ID: ${MTN_MOMO_COLLECTION_USER_ID:-}
+      MTN_MOMO_COLLECTION_KEY: ${MTN_MOMO_COLLECTION_KEY:-}
+      MTN_MOMO_DISBURSEMENT_USER_ID: ${MTN_MOMO_DISBURSEMENT_USER_ID:-}
+      MTN_MOMO_DISBURSEMENT_KEY: ${MTN_MOMO_DISBURSEMENT_KEY:-}
+      # Airtel (mocked by default)
+      AIRTEL_MOCK: ${AIRTEL_MOCK:-true}
+      AIRTEL_CLIENT_ID: ${AIRTEL_CLIENT_ID:-}
+      AIRTEL_CLIENT_SECRET: ${AIRTEL_CLIENT_SECRET:-}
+      AIRTEL_PIN: ${AIRTEL_PIN:-}
+      # USDT (mocked by default)
+      USDT_MOCK: ${USDT_MOCK:-true}
+    ports:
+      - '3004:3004'
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3004/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  room-service:
+    build:
+      context: .
+      dockerfile: apps/room-service/Dockerfile
+    container_name: umukino-room
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+      DATABASE_URL: postgresql://${POSTGRES_USER:-umukino}:${POSTGRES_PASSWORD:-umukino_dev_pw}@postgres:5432/${POSTGRES_DB:-umukino}
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+      WALLET_SERVICE_URL: http://wallet-service:3004
+      GAME_SERVICE_URL: http://game-service:3002
+    ports:
+      - '3005:3005'
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      wallet-service: { condition: service_healthy }
+    networks: [umukino-net]
+
+  leaderboard-service:
+    build:
+      context: .
+      dockerfile: apps/leaderboard-service/Dockerfile
+    container_name: umukino-leaderboard
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3006
+      MONGODB_URI: mongodb://${MONGO_USER:-umukino}:${MONGO_PASSWORD:-umukino_dev_pw}@mongodb:27017/umukino?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+    ports:
+      - '3006:3006'
+    depends_on:
+      mongodb: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [umukino-net]
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: umukino-notification
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3007
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@umukino.rw}
+    ports:
+      - '3007:3007'
+    depends_on:
+      redis: { condition: service_healthy }
+    networks: [umukino-net]
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: umukino-gateway
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      GAME_SERVICE_URL: http://game-service:3002
+      WALLET_SERVICE_URL: http://wallet-service:3004
+      ROOM_SERVICE_URL: http://room-service:3005
+      LEADERBOARD_SERVICE_URL: http://leaderboard-service:3006
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change_me_access_secret_256bit}
+      RATE_LIMIT_TTL: 60
+      RATE_LIMIT_MAX: 100
+    ports:
+      - '4000:4000'
+    depends_on:
+      - auth-service
+      - game-service
+      - wallet-service
+      - room-service
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4000/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [umukino-net]
+
+  # ============================================================
+  # FRONTEND
+  # ============================================================
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-http://localhost:3003}
+    container_name: umukino-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-http://localhost:3003}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api-gateway
+      - ws-gateway
+    networks: [umukino-net]
