@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
   role VARCHAR(20) NOT NULL DEFAULT 'player' CHECK (role IN ('player', 'admin', 'moderator')),
   is_verified BOOLEAN NOT NULL DEFAULT false,
   is_banned BOOLEAN NOT NULL DEFAULT false,
+  is_shadow_banned BOOLEAN DEFAULT false,
   ban_reason TEXT,
   last_login_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
