@@ -2,12 +2,12 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-COPY package.json package-lock.json turbo.json ./
+COPY package.json turbo.json ./
 COPY apps/game-service/package.json ./apps/game-service/
 COPY packages/shared-types/package.json ./packages/shared-types/
 COPY packages/shared-events/package.json ./packages/shared-events/
 COPY packages/board-data/package.json ./packages/board-data/
-RUN npm ci --ignore-scripts
+RUN npm install --legacy-peer-deps --ignore-scripts
 
 # ---- Stage 2: Build ----
 FROM node:20-alpine AS builder
@@ -33,6 +33,8 @@ USER nestjs
 EXPOSE ${PORT:-3001}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:'+process.env.PORT+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+ CMD node -e "require('http').get('http://localhost:'+process.env.PORT+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node", "dist/main"]
+
+

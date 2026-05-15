@@ -11,13 +11,13 @@ WORKDIR /app
 ARG SERVICE
 
 # Copy workspace manifests
-COPY package.json package-lock.json turbo.json ./
+COPY package.json turbo.json ./
 COPY apps/${SERVICE}/package.json ./apps/${SERVICE}/
 COPY packages/shared-types/package.json ./packages/shared-types/
 COPY packages/shared-events/package.json ./packages/shared-events/
 COPY packages/board-data/package.json ./packages/board-data/
 
-RUN npm ci --ignore-scripts
+RUN npm install --legacy-peer-deps --ignore-scripts
 
 # ---- Stage 2: Builder ----
 FROM node:20-alpine AS builder
@@ -58,3 +58,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 CMD ["node", "dist/main.js"]
+

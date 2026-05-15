@@ -1,8 +1,8 @@
 # ---- Stage 1: Deps ----
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY apps/web/package.json apps/web/package-lock.json* ./
-RUN npm ci
+COPY apps/web/package.json apps/web/ ./
+RUN npm install --legacy-peer-deps
 
 # ---- Stage 2: Build ----
 FROM node:20-alpine AS builder
@@ -35,6 +35,8 @@ USER nextjs
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000',r=>process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))"
+ CMD node -e "require('http').get('http://localhost:3000',r=>process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node", "server.js"]
+
+
