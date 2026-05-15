@@ -85,9 +85,9 @@ export enum PaymentProvider {
 export enum TransactionType {
   DEPOSIT = 'DEPOSIT',
   WITHDRAWAL = 'WITHDRAWAL',
-  GAME_ENTRY = 'GAME_ENTRY',
-  GAME_PAYOUT = 'GAME_PAYOUT',
-  IN_GAME_TRANSFER = 'IN_GAME_TRANSFER',
+  GAME_FEE = 'GAME_FEE',
+  GAME_PRIZE = 'GAME_PRIZE',
+  STORE_PURCHASE = 'STORE_PURCHASE',
 }
 
 export enum TransactionStatus {
