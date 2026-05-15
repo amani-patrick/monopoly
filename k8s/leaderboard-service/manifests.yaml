@@ -1,0 +1,39 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leaderboard-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: leaderboard-service
+  template:
+    metadata:
+      labels:
+        app: leaderboard-service
+    spec:
+      containers:
+      - name: leaderboard-service
+        image: ghcr.io/umukino/leaderboard-service:latest
+        ports:
+        - containerPort: 3006
+        env:
+        - name: PORT
+          value: "3006"
+        envFrom:
+        - configMapRef:
+            name: umukino-config
+        - secretRef:  
+            name: umukino-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: leaderboard-service
+spec:
+  selector:
+    app: leaderboard-service
+  ports:
+  - port: 3006
+    targetPort: 3006
+  type: ClusterIP

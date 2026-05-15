@@ -1,0 +1,39 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ws-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ws-gateway
+  template:
+    metadata:
+      labels:
+        app: ws-gateway
+    spec:
+      containers:
+      - name: ws-gateway
+        image: ghcr.io/umukino/ws-gateway:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: PORT
+          value: "3003"
+        envFrom:
+        - configMapRef:
+            name: umukino-config
+        - secretRef:
+            name: umukino-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-gateway
+spec:
+  selector:
+    app: ws-gateway
+  ports:
+  - port: 3003
+    targetPort: 3003
+  type: ClusterIP

@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: umukino-config
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  AUTH_SERVICE_URL: "http://auth-service:3001"
+  GAME_SERVICE_URL: "http://game-service:3002"
+  WS_GATEWAY_URL: "http://ws-gateway:3003"
+  WALLET_SERVICE_URL: "http://wallet-service:3004"
+  ROOM_SERVICE_URL: "http://room-service:3005"
+  LEADERBOARD_SERVICE_URL: "http://leaderboard-service:3006"
+  BOT_SERVICE_URL: "http://bot-service:3007"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3008"
+  REDIS_URL: "redis://redis:6379"
+  DATABASE_URL: "postgres://umukino:umukino123@postgres:5432/umukino"
+  MONGODB_URI: "mongodb://mongodb:27017/umukino"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: umukino-secrets
+type: Opaque
+data:
+  # Example base64 encoded values (placeholder)
+  JWT_ACCESS_SECRET: "Y2hhbmdlbWU="
+  JWT_REFRESH_SECRET: "Y2hhbmdlbWUtcmVmcmVzaA=="
+  GOOGLE_CLIENT_ID: "Y2hhbmdlbWU="
+  GOOGLE_CLIENT_SECRET: "Y2hhbmdlbWU="
+  MTN_MOMO_SUBSCRIPTION_KEY: "Y2hhbmdlbWU="
+  MTN_MOMO_WEBHOOK_SECRET: "Y2hhbmdlbWU="
+  AIRTEL_WEBHOOK_SECRET: "Y2hhbmdlbWU="
