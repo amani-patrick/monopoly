@@ -17,10 +17,13 @@
     "axios": "^1.6.8",
     "clsx": "^2.1.0",
     "tailwind-merge": "^2.2.2",
+    "lucide-react": "^0.344.0",
+    "react-hot-toast": "^2.4.1",
     "@umukino/shared-types": "*",
     "@umukino/shared-events": "*",
     "@umukino/board-data": "*"
   },
+  
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",

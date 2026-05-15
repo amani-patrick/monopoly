@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, getErrorMsg } from '@/lib/api';
-import { toast } from 'react-hot-toast';
+import {toast} from '@/components/ui/Toast';
 import { Navbar } from '@/components/layout/Navbar';
 import { RefreshIcon } from '@/components/layout/Icons';
 

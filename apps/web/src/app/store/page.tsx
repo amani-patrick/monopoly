@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { api, getErrorMsg } from '@/lib/api';
-import { toast } from 'react-hot-toast';
+import { toast } from '@/components/ui/Toast';  
 import { TrophyIcon, UserIcon, CyberIcon, NatureIcon, NeonIcon, ClassicIcon } from '@/components/layout/Icons';
 
 const ITEMS = [
