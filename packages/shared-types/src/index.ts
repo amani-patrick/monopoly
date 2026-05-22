@@ -1,7 +1,3 @@
-// ============================================================
-// UMUKINO - Shared Types Package
-// ============================================================
-
 // --- Enums ---
 
 export enum PlayerStatus {
@@ -104,15 +100,15 @@ export enum TransactionStatus {
 export interface BoardSpace {
   index: number;
   name: string;
-  nameKiny: string; // Kinyarwanda name
+  nameKiny: string; 
   type: SpaceType;
   color?: PropertyColor;
-  price?: number;          // RWF
-  rent?: number[];         // [base, 1h, 2h, 3h, 4h, hotel]
+  price?: number;          
+  rent?: number[];         
   housePrice?: number;
   hotelPrice?: number;
   mortgage?: number;
-  group?: string;          // color group id for airports/utilities
+  group?: string;          
   taxAmount?: number;
   taxPercent?: number;
   cardDeck?: CardDeckType;
@@ -131,8 +127,8 @@ export interface GameCard {
   moveTo?: number;
   moveBy?: number;
   jailFree?: boolean;
-  perPlayer?: boolean;    // collect/pay per player
-  streetRepairs?: boolean; // pay per house/hotel
+  perPlayer?: boolean;    
+  streetRepairs?: boolean; 
   houseCost?: number;
   hotelCost?: number;
 }
@@ -155,7 +151,7 @@ export type CardAction =
 export interface PropertyState {
   spaceIndex: number;
   ownerId: string | null;
-  houses: number;         // 0-4
+  houses: number;         
   hotel: boolean;
   mortgaged: boolean;
 }
@@ -171,15 +167,15 @@ export interface Player {
   position: number;
   balance: number;        // RWF in-game balance
   status: PlayerStatus;
-  jailTurns: number;
+  jailTurns: number; // number of turns spent  in jail
   jailFreeCards: number;
   doublesCount: number;
-  properties: number[];   // space indices owned
-  isBot: boolean;
+  properties: number[];   //Array of space's index owned by the player
+  isBot: boolean; // for bot indicator
   connected: boolean;
   bankruptAt?: string;
-  rank?: number;
-  skipNextTurn?: boolean; // BUG 5 fix: set by SKIP_TURN card, checked at roll time
+  rank?: number; // rank based on previous matches 
+  skipNextTurn?: boolean; //skip next turn i.e on vacation
 }
 
 // --- Trade ---
@@ -192,7 +188,6 @@ export interface Trade {
   offer: TradeOffer;
   request: TradeOffer;
   status: TradeStatus;
-  message?: string;
   createdAt: string;
   expiresAt: string;
 }
@@ -201,6 +196,8 @@ export interface TradeOffer {
   cash: number;
   properties: number[];   // space indices
   jailFreeCards: number;
+  //whatever else we want to add in future like "services" (e.g. "I will skip your next turn") or "future considerations" (e.g. "I will give you 10000 RWF if you win the game")
+
 }
 
 // --- Auction ---
@@ -233,6 +230,7 @@ export interface GameSettings {
   doubleRentFullSet: boolean;
   vacationCash: boolean; 
   auctionEnabled: boolean;
+  EvenBuild:boolean; // if true, must build evenly across properties in a color group
   noRentInJail: boolean;
   startingBalance: number;  // default 150000 RWF (in-game money only)
   passStartBonus: number;   // default 20000 RWF
@@ -277,7 +275,7 @@ export interface GameLogEntry {
 
 export interface Room {
   id: string;
-  code: string;            // short join code e.g. "4j5qu"
+  code: string;            // short join code i.e "4j5qu"
   hostId: string;
   name: string;
   settings: GameSettings;
@@ -300,8 +298,8 @@ export interface RoomPlayer {
 export interface Wallet {
   id: string;
   userId: string;
-  realBalance: number;     // RWF real money
-  bonusBalance: number;    // promotional credits
+  realBalance: number;     
+  bonusBalance: number;    
   currency: 'RWF';
   createdAt: string;
   updatedAt: string;

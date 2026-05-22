@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "docker-compose up --build",
     "dev:detach": "docker-compose up --build -d",
+    "db:local": "bash scripts/dev-local.sh",
     "down": "docker-compose down",
     "down:volumes": "docker-compose down -v",
     "lint": "turbo run lint",
