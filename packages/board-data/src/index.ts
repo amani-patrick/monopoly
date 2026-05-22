@@ -1,8 +1,7 @@
 import { BoardSpace, GameCard, SpaceType, PropertyColor, CardDeckType } from '@umukino/shared-types';
 
 // ============================================================
-// UMUKINO BOARD — 40 Spaces, Rwanda + International Mix
-// All prices in RWF
+// GAME BOARD — 40 Spaces, Rwanda + International Mix
 // ============================================================
 
 export const BOARD_SPACES: BoardSpace[] = [
@@ -22,16 +21,16 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.BROWN,
     price: 12000,
-    rent: [400, 2000, 4000, 10000, 30000, 50000],
-    housePrice: 5000,
-    hotelPrice: 5000,
-    mortgage: 6000,
-    group: 'brown',
+    rent: [400, 2000, 4000, 10000, 30000, 50000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
+    housePrice: 5000, // PURCHASE PRICE FOR EACH HOUSE
+    hotelPrice: 5000, // PURCHASE PRICE FOR HOTEL (in addition to 4 houses)
+    mortgage: 6000, // MORTGAGE IT FOR THIS AMOUNT
+    group: 'brown', 
   },
   {
     index: 2,
     name: 'Treasure',
-    nameKiny: 'Ubutunzi',
+    nameKiny: 'TOMBORA',
     type: SpaceType.CARD,
     cardDeck: CardDeckType.TREASURE,
   },
@@ -42,7 +41,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.BROWN,
     price: 14000,
-    rent: [600, 3000, 6000, 18000, 50000, 70000],
+    rent: [600, 3000, 6000, 18000, 50000, 70000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 5000,
     hotelPrice: 5000,
     mortgage: 7000,
@@ -63,7 +62,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     nameKiny: 'Ikibuga cy\'indege cya Kigali',
     type: SpaceType.AIRPORT,
     price: 40000,
-    rent: [5000, 10000, 20000, 40000],
+    rent: [5000, 10000, 20000, 40000],// base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     mortgage: 20000,
     group: 'airports',
   },
@@ -76,7 +75,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.LIGHT_BLUE,
     price: 18000,
-    rent: [1000, 5000, 15000, 45000, 62500, 75000],
+    rent: [1000, 5000, 15000, 45000, 62500, 75000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 5000,
     hotelPrice: 5000,
     mortgage: 9000,
@@ -85,7 +84,7 @@ export const BOARD_SPACES: BoardSpace[] = [
   {
     index: 7,
     name: 'Surprise',
-    nameKiny: 'Igitangaza',
+    nameKiny: 'AMAHIRWE',
     type: SpaceType.CARD,
     cardDeck: CardDeckType.SURPRISE,
   },
@@ -96,7 +95,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.LIGHT_BLUE,
     price: 18000,
-    rent: [1000, 5000, 15000, 45000, 62500, 75000],
+    rent: [1000, 5000, 15000, 45000, 62500, 75000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 5000,
     hotelPrice: 5000,
     mortgage: 9000,
@@ -109,7 +108,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.LIGHT_BLUE,
     price: 20000,
-    rent: [1200, 6000, 18000, 50000, 70000, 90000],
+    rent: [1200, 6000, 18000, 50000, 70000, 90000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 5000,
     hotelPrice: 5000,
     mortgage: 10000,
@@ -132,7 +131,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.PINK,
     price: 22000,
-    rent: [1800, 9000, 25000, 70000, 87500, 105000],
+    rent: [1800, 9000, 25000, 70000, 87500, 105000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 10000,
     hotelPrice: 10000,
     mortgage: 11000,
@@ -154,7 +153,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.PINK,
     price: 24000,
-    rent: [2000, 10000, 30000, 75000, 92500, 110000],
+    rent: [2000, 10000, 30000, 75000, 92500, 110000],// base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 10000,
     hotelPrice: 10000,
     mortgage: 12000,
@@ -167,7 +166,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.PINK,
     price: 26000,
-    rent: [2200, 11000, 33000, 80000, 97500, 115000],
+    rent: [2200, 11000, 33000, 80000, 97500, 115000],// base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 10000,
     hotelPrice: 10000,
     mortgage: 13000,
@@ -181,7 +180,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     nameKiny: 'Ikibuga cy\'indege cya Nairobi',
     type: SpaceType.AIRPORT,
     price: 40000,
-    rent: [5000, 10000, 20000, 40000],
+    rent: [5000, 10000, 20000, 40000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     mortgage: 20000,
     group: 'airports',
   },
@@ -194,7 +193,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.ORANGE,
     price: 28000,
-    rent: [2400, 12000, 36000, 85000, 102500, 120000],
+    rent: [2400, 12000, 36000, 85000, 102500, 120000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 10000,
     hotelPrice: 10000,
     mortgage: 14000,
@@ -214,7 +213,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.ORANGE,
     price: 28000,
-    rent: [2400, 12000, 36000, 85000, 102500, 120000],
+    rent: [2400, 12000, 36000, 85000, 102500, 120000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 10000,
     hotelPrice: 10000,
     mortgage: 14000,
@@ -227,7 +226,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.ORANGE,
     price: 30000,
-    rent: [2800, 14000, 40000, 90000, 110000, 130000],
+    rent: [2800, 14000, 40000, 90000, 110000, 130000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 10000,
     hotelPrice: 10000,
     mortgage: 15000,
@@ -250,7 +249,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.RED,
     price: 32000,
-    rent: [3000, 15000, 45000, 95000, 115000, 140000],
+    rent: [3000, 15000, 45000, 95000, 115000, 140000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 15000,
     hotelPrice: 15000,
     mortgage: 16000,
@@ -331,8 +330,8 @@ export const BOARD_SPACES: BoardSpace[] = [
   },
   {
     index: 28,
-    name: 'REG (Electricity)',
-    nameKiny: 'REG (Amashanyarazi)',
+    name: 'REG(electricity company))',
+    nameKiny: 'REG(uruganda rw\'amashanyarazi)',
     type: SpaceType.UTILITY,
     price: 15000,
     mortgage: 7500,
@@ -437,7 +436,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.DARK_BLUE,
     price: 55000,
-    rent: [8500, 28000, 80000, 200000, 220000, 250000],
+    rent: [8500, 28000, 80000, 200000, 220000, 250000], // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 20000,
     hotelPrice: 20000,
     mortgage: 27500,
@@ -457,7 +456,7 @@ export const BOARD_SPACES: BoardSpace[] = [
     type: SpaceType.PROPERTY,
     color: PropertyColor.DARK_BLUE,
     price: 70000,
-    rent: [10000, 35000, 100000, 300000, 450000, 500000],
+    rent: [10000, 35000, 100000, 300000, 450000, 500000],  // base rent, 1 house, 2 houses, 3 houses, 4 houses, hotel
     housePrice: 20000,
     hotelPrice: 20000,
     mortgage: 35000,
@@ -465,16 +464,16 @@ export const BOARD_SPACES: BoardSpace[] = [
   },
 ];
 
-// ============================================================
-// SURPRISE DECK (16 cards) — Rwanda flavor
-// ============================================================
+// =========================================
+// SURPRISE DECK (16 cards)
+// =========================================
 
 export const SURPRISE_CARDS: GameCard[] = [
   {
     id: 'S01',
     deck: CardDeckType.SURPRISE,
     text: 'Advance to Start. Collect 20,000 RWF as you pass.',
-    textKiny: 'Garuka ku ntangiriro. Fata amafaranga 20,000 RWF ugeze.',
+    textKiny: 'Ca ku ntangiriro. Wakire amafaranga 20,000 RWF.',
     action: 'GO_TO_START',
     amount: 20000,
   },
@@ -482,23 +481,23 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S02',
     deck: CardDeckType.SURPRISE,
     text: 'MTN MoMo scammer got you! Pay 8,000 RWF.',
-    textKiny: 'Urimbuye wa MTN MoMo yakurimbuje! Tanga 8,000 RWF.',
+    textKiny: 'Uratuburiwe! Uhombye 8,000 RWF.',
     action: 'LOSE',
     amount: 8000,
   },
   {
     id: 'S03',
     deck: CardDeckType.SURPRISE,
-    text: 'Your boda boda broke down on Kigali roads. Pay 5,000 RWF.',
-    textKiny: 'Motos yawe yarananiwe mu nzira za Kigali. Tanga 5,000 RWF.',
+    text: 'Your shoes got torn. Pay 2,000 RWF.',
+    textKiny: 'Inkweto zigucikiyeho. Kuzidodesha ni 2,000 RWF.',
     action: 'LOSE',
-    amount: 5000,
+    amount: 2000,
   },
   {
     id: 'S04',
     deck: CardDeckType.SURPRISE,
     text: 'Bank of Kigali credited interest to your account. Collect 12,000 RWF.',
-    textKiny: 'Banki y\'u Rwanda yaguheye inyungu. Fata 12,000 RWF.',
+    textKiny: 'BK  yaguhaye inyungu. Fata 12,000 RWF.',
     action: 'GAIN',
     amount: 12000,
   },
@@ -506,22 +505,22 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S05',
     deck: CardDeckType.SURPRISE,
     text: 'Go directly to Prison. Do not pass Start. Do not collect 20,000 RWF.',
-    textKiny: 'Jya mu Gereza ako kanya. Ntuzanyure ku ntangiriro.',
+    textKiny: 'Jya gereza nta kuzuyaza.',
     action: 'GO_TO_JAIL',
   },
   {
     id: 'S06',
     deck: CardDeckType.SURPRISE,
     text: 'RURA fined your business for non-compliance. Pay 10,000 RWF.',
-    textKiny: 'RURA yahanye ubucuruzi bwawe. Tanga 10,000 RWF.',
+    textKiny: 'Uciwe amande na RURA kuri business yawe. Tanga 10,000 RWF.',
     action: 'LOSE',
     amount: 10000,
   },
   {
     id: 'S07',
     deck: CardDeckType.SURPRISE,
-    text: 'You won the Umuganura festival raffle! Collect 15,000 RWF.',
-    textKiny: 'Wanye tombola y\'Umuganura! Fata 15,000 RWF.',
+    text: 'You won MTN prizes! Collect 15,000 RWF.',
+    textKiny: 'Utsindiye ibihembo bya MTN,  15,000 RWF.',
     action: 'GAIN',
     amount: 15000,
   },
@@ -529,7 +528,7 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S08',
     deck: CardDeckType.SURPRISE,
     text: 'Get out of Prison free. Keep this card until needed.',
-    textKiny: 'Sohoka mu Gereza ubuntu. Bika iyi karita kugeza ubwo uzayikeneye.',
+    textKiny: 'Ugiriwe imbabazi zo kuva gereza kubuntu.',
     action: 'GET_OUT_OF_JAIL_FREE',
     jailFree: true,
   },
@@ -537,7 +536,7 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S09',
     deck: CardDeckType.SURPRISE,
     text: 'Umuganda day — everyone must contribute. Pay 3,000 RWF per player.',
-    textKiny: 'Umuganda — buri wese agomba gufatanya. Tanga 3,000 RWF ku mukinnyi.',
+    textKiny: 'Umuganda — buri wese agomba gufasha Tanga 3,000 RWF ku mukinnyi.',
     action: 'PAY_TO_PLAYERS',
     amount: 3000,
     perPlayer: true,
@@ -546,7 +545,7 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S10',
     deck: CardDeckType.SURPRISE,
     text: 'Your property renovation loan approved! Collect 20,000 RWF.',
-    textKiny: 'Inguzanyo y\'inzu yawe yemejwe! Fata 20,000 RWF.',
+    textKiny: 'Uhawe ideni ryo kuvugurura inzu yawe! Fata 20,000 RWF.',
     action: 'GAIN',
     amount: 20000,
   },
@@ -554,15 +553,15 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S11',
     deck: CardDeckType.SURPRISE,
     text: 'Advance to Kigali International Airport.',
-    textKiny: 'Jya ku Kibuga cy\'Indege cya Kigali.',
+    textKiny: 'Jya Kanombe ku kibuga kindege',
     action: 'MOVE_TO',
     moveTo: 5,
   },
   {
     id: 'S12',
     deck: CardDeckType.SURPRISE,
-    text: 'RDB inspection passed — your business gets a grant! Collect 10,000 RWF.',
-    textKiny: 'Igenzura rya RDB ryakunze — ubucuruzi bwawe buhawe inkunga! Fata 10,000 RWF.',
+    text: 'Award from your job! 10,000rwf',
+    textKiny: 'Kukazi wahawe agahimbazamusyi.10,000RWF',
     action: 'GAIN',
     amount: 10000,
   },
@@ -570,22 +569,22 @@ export const SURPRISE_CARDS: GameCard[] = [
     id: 'S13',
     deck: CardDeckType.SURPRISE,
     text: 'Phone died, lost all your contacts. Skip your next turn.',
-    textKiny: 'Telefone yawe yapfuye, wabuze za numero. Tangira ipindi ry\'undi.',
+    textKiny: 'Telefone yawe yapfuye, wabuze numero zose. indi nshuro turagutaruka',
     action: 'SKIP_TURN',
   },
   {
     id: 'S14',
     deck: CardDeckType.SURPRISE,
     text: 'Move back 3 spaces.',
-    textKiny: 'Subira inyuma intera 3.',
+    textKiny: 'Subira inyuma  imyanya 3.',
     action: 'MOVE_BY',
     moveBy: -3,
   },
   {
     id: 'S15',
     deck: CardDeckType.SURPRISE,
-    text: 'Your friends collected ikimina for you! Collect 5,000 RWF from each player.',
-    textKiny: 'Inshuti zawe zakuganiriye ikimina! Fata 5,000 RWF ku mukinnyi wese.',
+    text: 'You met an emergency.Collect 5,000 RWF from each player.',
+    textKiny: 'Wagize ibyago! Fata 5,000 RWF kuri buri mukinnyi.',
     action: 'COLLECT_FROM_PLAYERS',
     amount: 5000,
     perPlayer: true,
@@ -611,15 +610,15 @@ export const TREASURE_CARDS: GameCard[] = [
     id: 'T01',
     deck: CardDeckType.TREASURE,
     text: 'Bank error in your favor! Collect 20,000 RWF.',
-    textKiny: 'Ikosa rya banki rirakugirira neza! Fata 20,000 RWF.',
+    textKiny: 'Ikosa muri sistemu ya banki! Wakiriye 20,000 RWF.',
     action: 'GAIN',
     amount: 20000,
   },
   {
     id: 'T02',
     deck: CardDeckType.TREASURE,
-    text: 'Medical bill arrives. Pay 10,000 RWF.',
-    textKiny: 'Fagitire y\'ivuriro igeze. Tanga 10,000 RWF.',
+    text: 'Electricity bill arrives. Pay 10,000 RWF.',
+    textKiny: 'Fagitire y\'umuriro igeze. Yose hamwe ni 10,000 RWF.',
     action: 'LOSE',
     amount: 10000,
   },
@@ -643,7 +642,7 @@ export const TREASURE_CARDS: GameCard[] = [
     id: 'T05',
     deck: CardDeckType.TREASURE,
     text: 'Go directly to Prison. Do not pass Start.',
-    textKiny: 'Jya mu Gereza ako kanya. Ntuzanyure ku ntangiriro.',
+    textKiny: 'Jya Gereza ntakuzuyaza.',
     action: 'GO_TO_JAIL',
   },
   {
@@ -658,7 +657,7 @@ export const TREASURE_CARDS: GameCard[] = [
     id: 'T07',
     deck: CardDeckType.TREASURE,
     text: 'Property tax bill due. Pay 8,000 RWF.',
-    textKiny: 'Fagitire y\'umusoro w\'imitungo igeze. Tanga 8,000 RWF.',
+    textKiny: 'Fagitire y\'umusoro w\'imitungo yageze. Tanga 8,000 RWF.',
     action: 'LOSE',
     amount: 8000,
   },
@@ -666,7 +665,7 @@ export const TREASURE_CARDS: GameCard[] = [
     id: 'T08',
     deck: CardDeckType.TREASURE,
     text: 'Get out of Prison free. Keep this card until needed.',
-    textKiny: 'Sohoka mu Gereza ubuntu. Bika iyi karita.',
+    textKiny: 'Sohoka mu Gereza ku buntu.Yibike neza',
     action: 'GET_OUT_OF_JAIL_FREE',
     jailFree: true,
   },
@@ -691,7 +690,7 @@ export const TREASURE_CARDS: GameCard[] = [
     id: 'T11',
     deck: CardDeckType.TREASURE,
     text: 'Your startup won a Hanga Roundtable prize! Collect 25,000 RWF.',
-    textKiny: 'Sitati yawe yanye igihembo cya Hanga! Fata 25,000 RWF.',
+    textKiny: 'umushinga wawe watsindiye igihembo cya Hanga! Fata 25,000 RWF.',
     action: 'GAIN',
     amount: 25000,
   },
@@ -707,7 +706,7 @@ export const TREASURE_CARDS: GameCard[] = [
     id: 'T13',
     deck: CardDeckType.TREASURE,
     text: 'Street repairs: pay 2,500 RWF per house, 10,000 RWF per hotel.',
-    textKiny: 'Gusana inzira: tanga 2,500 RWF ku nzu, 10,000 RWF ku hotel.',
+    textKiny: 'Gusana imihanda: tanga 2,500 RWF ku nzu, 10,000 RWF ku hotel.',
     action: 'STREET_REPAIRS',
     streetRepairs: true,
     houseCost: 2500,
@@ -716,16 +715,16 @@ export const TREASURE_CARDS: GameCard[] = [
   {
     id: 'T14',
     deck: CardDeckType.TREASURE,
-    text: 'Hospital and school fees due. Pay 15,000 RWF.',
-    textKiny: 'Amafaranga y\'ibitaro n\'amashuri. Tanga 15,000 RWF.',
+    text: 'Hospital and school fees due. Pay 30,000 RWF.',
+    textKiny: 'Amafaranga y\'ishuri. Tanga 30,000 RWF.',
     action: 'LOSE',
-    amount: 15000,
+    amount: 30000,
   },
   {
     id: 'T15',
     deck: CardDeckType.TREASURE,
     text: 'You won second prize in a beauty contest! Collect 10,000 RWF.',
-    textKiny: 'Wanye igihembo cya kabiri mu gikorwa cy\'ubwiza! Fata 10,000 RWF.',
+    textKiny: 'wabaye uwa 2 mumarushanwa y\'ubwiza! Fata 10,000 RWF.',
     action: 'GAIN',
     amount: 10000,
   },
@@ -745,9 +744,9 @@ export const TREASURE_CARDS: GameCard[] = [
 
 export const BOARD_CONFIG = {
   totalSpaces: 40,
-  startingBalance: 150000,     // RWF
-  passStartBonus: 20000,       // RWF
-  jailFine: 5000,              // RWF
+  startingBalance: 150000,     
+  passStartBonus: 20000,       
+  jailFine: 5000,             
   jailPosition: 10,
   goToJailPosition: 30,
   maxJailTurns: 3,

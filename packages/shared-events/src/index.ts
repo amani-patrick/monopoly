@@ -1,6 +1,3 @@
-// ============================================================
-// UMUKINO - Shared WebSocket & Messaging Events
-// ============================================================
 
 export const GAME_EVENTS = {
   // Room lifecycle
@@ -24,6 +21,7 @@ export const GAME_EVENTS = {
   TURN_DICE_ROLLED: 'turn.dice.rolled',
   TURN_PLAYER_MOVED: 'turn.player.moved',
   TURN_ENDED: 'turn.ended',
+  
 
   // Property
   PROPERTY_LANDED: 'property.landed',
