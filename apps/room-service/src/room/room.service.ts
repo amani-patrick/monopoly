@@ -158,11 +158,23 @@ export class RoomService {
     return { gameId: gameData.id, room };
   }
 
-  async addSpectator(codeOrId: string, userId: string): Promise<{ gameId: string }> {
+  // async addSpectator(codeOrId: string, userId: string): Promise<{ gameId: string }> {
+  //   const room = await this.getRoomByIdOrCode(codeOrId);
+  //   if (!room) throw new NotFoundException('Room not found');
+  //   if (room.status !== 'IN_GAME') throw new BadRequestException('Game has not started yet');
+  //   await this.redis.sadd(`room:${room.id}:spectators`, userId);
+  //   await this.redis.expire(`room:${room.id}:spectators`, 86400);
+  //   return { gameId: room.gameId! };
+  // }
+  // Service
+  async addSpectator(codeOrId: string, userId: string | null): Promise<{ gameId: string }> {
     const room = await this.getRoomByIdOrCode(codeOrId);
     if (!room) throw new NotFoundException('Room not found');
     if (room.status !== 'IN_GAME') throw new BadRequestException('Game has not started yet');
-    await this.redis.sadd(`room:${room.id}:spectators`, userId);
+
+    const spectatorId = userId ?? `guest:${uuid()}`;
+
+    await this.redis.sadd(`room:${room.id}:spectators`, spectatorId);
     await this.redis.expire(`room:${room.id}:spectators`, 86400);
     return { gameId: room.gameId! };
   }

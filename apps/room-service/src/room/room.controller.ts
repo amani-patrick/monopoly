@@ -111,10 +111,11 @@ export class RoomController {
 
   // ---- Spectator join (paid lobbies only, game must be IN_GAME) ----
   @Post('rooms/:code/spectate')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   async spectate(@Param('code') code: string, @Req() req: any) {
-    return this.rooms.addSpectator(code, req.user.sub);
+    const userId = req.user ? req.user.sub : `guest_${Date.now()}`;
+    return this.rooms.addSpectator(code, userId);
   }
 
   // ---- Admin ----

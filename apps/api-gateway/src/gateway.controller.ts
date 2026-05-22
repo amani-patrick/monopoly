@@ -1,7 +1,7 @@
 import {
   Controller, All, Req, Res, Param, UseGuards,
   Get, Post, Put, Delete, Body, Query,
-  HttpException, HttpStatus, Logger,
+  HttpException, HttpStatus,Http, Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -129,6 +129,18 @@ export class GatewayController {
     return this.proxy('room', 'POST', `/rooms/${code}/leave`, { userId: req.user.sub }, req.user);
   }
 
+  @Post('rooms/:code/ready')
+  @UseGuards(JwtAuthGuard)
+  async setReady(@Param('code') code: string, @Req() req: any) {
+    return this.proxy('room', 'POST', `/rooms/${code}/ready`, { userId: req.user.sub }, req.user);
+  }
+
+  @Post('rooms/:code/spectate')
+  async spectate(@Param('code') code: string, @Req() req: any) {
+    const userId = req.user ? req.user.sub : `guest_${Date.now()}`;
+    return this.proxy('room', 'POST', `/rooms/${code}/spectate`, { userId }, req.user);
+  }
+
   // ============================================================
   // GAME ROUTES
   // ============================================================
@@ -186,9 +198,9 @@ export class GatewayController {
     return this.proxy('leaderboard', 'GET', `/leaderboard/players/${userId}`);
   }
 
-  // ============================================================
-  // ADMIN ROUTES (hidden, admin JWT required)
-  // ============================================================
+  // =====================================
+  // ADMIN ROUTES 
+  // =====================================
 
   @Get('admin/dashboard')
   @UseGuards(JwtAuthGuard, AdminGuard)
