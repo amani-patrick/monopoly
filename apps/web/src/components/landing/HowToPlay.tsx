@@ -1,25 +1,33 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import type { IconProps } from '@/components/layout/Icons';
+import {
+  BanknoteIcon, DiceIcon, HomeIcon, CoinsIcon, PrisonIcon, TradeIcon,
+  HammerIcon, TrophyIcon, BuildIcon, HotelIcon, CyberIcon,
+  ArrowUpIcon, ArrowDownIcon, TrashIcon, PlayIcon, ChevronDownIcon,
+} from '@/components/layout/Icons';
 
-const RULES = [
-  { icon: '💵', title: 'All players start with 150,000 RWF.', sub: 'In-game money only — real entry fee is separate.' },
-  { icon: '🎲', title: 'On your turn, roll the dice to move forward.', sub: 'Got doubles? You\'ll have another turn!' },
-  { icon: '🏘️', title: 'Purchase properties and grow your financial empire.', sub: 'Once you own a property, other players pay rent when they land on it.' },
+type RuleItem = { Icon: React.ComponentType<IconProps>; title: string; sub: string };
+
+const RULES: RuleItem[] = [
+  { Icon: BanknoteIcon, title: 'All players start with 150,000 RWF.', sub: 'In-game money only — real entry fee is separate.' },
+  { Icon: DiceIcon, title: 'On your turn, roll the dice to move forward.', sub: "Got doubles? You'll have another turn!" },
+  { Icon: HomeIcon, title: 'Purchase properties and grow your financial empire.', sub: 'Once you own a property, other players pay rent when they land on it.' },
 ];
 
-const EXTRA_RULES = [
-  { icon: '🏠', title: 'Build evenly across a full color set.', sub: 'You must own all properties in a group before building houses or hotels.' },
-  { icon: '💰', title: 'Pass Start to collect 20,000 RWF.', sub: 'Every time you complete a lap of the board.' },
-  { icon: '🚔', title: 'Go to Prison — three ways.', sub: 'Roll doubles three times in a row, draw a "Go to Prison" card, or land on the space.' },
-  { icon: '🤝', title: 'Trade properties, cash & jail-free cards.', sub: 'Negotiate with other players any time it\'s your turn. In paid lobbies, fair trade rules apply.' },
-  { icon: '🔨', title: 'Auction when a property goes unbought.', sub: 'If a player skips buying, it goes to auction — highest bidder wins.' },
-  { icon: '💸', title: 'Mortgage properties to raise cash.', sub: 'Get 50% of the property price. Unmortgage for 110% to resume collecting rent.' },
-  { icon: '🏆', title: 'Last player standing wins.', sub: 'When all other players go bankrupt, you win the pot. We take our 10% cut; the rest is yours.' },
+const EXTRA_RULES: RuleItem[] = [
+  { Icon: HomeIcon, title: 'Build evenly across a full color set.', sub: 'You must own all properties in a group before building houses or hotels.' },
+  { Icon: CoinsIcon, title: 'Pass Start to collect 20,000 RWF.', sub: 'Every time you complete a lap of the board.' },
+  { Icon: PrisonIcon, title: 'Go to Prison — three ways.', sub: 'Roll doubles three times in a row, draw a "Go to Prison" card, or land on the space.' },
+  { Icon: TradeIcon, title: 'Trade properties, cash & jail-free cards.', sub: "Negotiate with other players any time it's your turn. In paid lobbies, fair trade rules apply." },
+  { Icon: HammerIcon, title: 'Auction when a property goes unbought.', sub: 'If a player skips buying, it goes to auction — highest bidder wins.' },
+  { Icon: BanknoteIcon, title: 'Mortgage properties to raise cash.', sub: 'Get 50% of the property price. Unmortgage for 110% to resume collecting rent.' },
+  { Icon: TrophyIcon, title: 'Last player standing wins.', sub: 'When all other players go bankrupt, you win the pot. We take our 10% cut; the rest is yours.' },
 ];
 
 const PROPERTY_EXAMPLE = {
   name: 'Kigali CBD',
-  flag: '🇷🇼',
+  flag: 'RW',
   color: '#6d28d9',
   rents: [
     { label: 'with rent', value: '10,000' },
@@ -32,46 +40,43 @@ const PROPERTY_EXAMPLE = {
   price: '70,000',
   housePrice: '20,000',
   hotelPrice: '20,000',
-  owner: null,
 };
+
+function RuleRow({ Icon, title, sub, compact }: RuleItem & { compact?: boolean }) {
+  return (
+    <div style={{ display: 'flex', gap: compact ? '0.75rem' : '1.25rem', alignItems: 'flex-start' }}>
+      <div style={{
+        width: compact ? 32 : 48, height: compact ? 32 : 48, borderRadius: 'var(--radius-md)',
+        background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0, border: '1px solid var(--border)', color: 'var(--purple-light)',
+      }}>
+        <Icon size={compact ? 16 : 22} />
+      </div>
+      <div>
+        <div style={{ fontWeight: 600, fontSize: compact ? '0.9rem' : '1rem', marginBottom: '0.2rem' }}>{title}</div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: compact ? '0.82rem' : '0.87rem', lineHeight: 1.5 }}>{sub}</div>
+      </div>
+    </div>
+  );
+}
 
 export function HowToPlay() {
   const [showAll, setShowAll] = useState(false);
 
   return (
-    <section style={{
-      maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem 5rem',
-    }}>
+    <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem 5rem' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '3rem', alignItems: 'start' }}>
-        {/* Left: rules */}
         <div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '2rem', color: 'var(--text-primary)' }}>
             How to play
           </h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-            {RULES.map((r, i) => (
-              <div key={i} style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 'var(--radius-md)',
-                  background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0,
-                  border: '1px solid var(--border)',
-                }}>{r.icon}</div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.2rem' }}>{r.title}</div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.87rem', lineHeight: 1.5 }}>{r.sub}</div>
-                </div>
-              </div>
-            ))}
+            {RULES.map((r, i) => <RuleRow key={i} {...r} />)}
 
-            {/* Expandable section */}
-            <div style={{
-              borderTop: '1px solid var(--border)', paddingTop: '1.5rem',
-              display: 'flex', flexDirection: 'column', gap: '1.25rem',
-            }}>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '1.1rem', fontWeight: 700 }}>🏗️</span>
+                <BuildIcon size={22} />
                 <span style={{ fontWeight: 700, fontSize: '1.05rem' }}>
                   Own a full property set? Start building houses and hotels
                 </span>
@@ -81,78 +86,68 @@ export function HowToPlay() {
                 Build hotels to maximize income and make other players lose their money.
               </p>
 
-              {/* Property mini-board preview */}
               <div style={{ display: 'flex', gap: '6px', marginLeft: '1.85rem', flexWrap: 'wrap' }}>
                 {[
-                  { name: 'Kigali CBD', color: '#6d28d9', flag: '🇷🇼', hotels: 0, houses: 4 },
-                  { name: 'Tokyo', color: '#6d28d9', flag: '🇯🇵', hotels: 1, houses: 0 },
-                  { name: 'REG', color: '#374151', flag: '⚡', hotels: 0, houses: 0, utility: true },
-                  { name: 'New York', color: '#166534', flag: '🇺🇸', hotels: 0, houses: 3 },
+                  { name: 'Kigali CBD', color: '#6d28d9', code: 'RW', hotels: 0, houses: 4 },
+                  { name: 'Tokyo', color: '#6d28d9', code: 'JP', hotels: 1, houses: 0 },
+                  { name: 'REG', color: '#374151', code: 'UT', hotels: 0, houses: 0, utility: true },
+                  { name: 'New York', color: '#166534', code: 'US', hotels: 0, houses: 3 },
                 ].map((p, i) => (
                   <div key={i} style={{
                     background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border)', overflow: 'hidden',
-                    minWidth: '80px', textAlign: 'center',
+                    border: '1px solid var(--border)', overflow: 'hidden', minWidth: '80px', textAlign: 'center',
                   }}>
                     <div style={{ height: '6px', background: p.color }} />
                     <div style={{ padding: '8px 6px' }}>
-                      <div style={{ fontSize: '1.2rem' }}>{p.flag}</div>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>{p.code}</div>
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{p.name}</div>
-                      {p.hotels > 0 && <div style={{ fontSize: '0.7rem', marginTop: '4px' }}>🏨</div>}
+                      {p.hotels > 0 && <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'center' }}><HotelIcon size={14} /></div>}
                       {p.houses > 0 && !p.hotels && (
-                        <div style={{ fontSize: '0.65rem', color: 'var(--green-pos)', marginTop: '4px' }}>
-                          🏠 ×{p.houses}
+                        <div style={{ fontSize: '0.65rem', color: 'var(--green-pos)', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                          <HomeIcon size={12} /> ×{p.houses}
                         </div>
+                      )}
+                      {'utility' in p && p.utility && (
+                        <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'center' }}><CyberIcon size={14} /></div>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* More rules toggle */}
               {!showAll ? (
                 <button onClick={() => setShowAll(true)} style={{
                   background: 'none', border: '1px solid var(--border-bright)',
                   borderRadius: 'var(--radius-md)', color: 'var(--purple-light)',
                   padding: '8px 16px', cursor: 'pointer', fontSize: '0.85rem',
-                  alignSelf: 'flex-start', transition: 'border-color 0.15s',
+                  alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '6px',
                 }}>
-                  Show all rules ↓
+                  Show all rules <ChevronDownIcon size={14} />
                 </button>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {EXTRA_RULES.map((r, i) => (
-                    <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '1.1rem', flexShrink: 0, marginTop: '1px' }}>{r.icon}</span>
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title}</div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '2px' }}>{r.sub}</div>
-                      </div>
-                    </div>
-                  ))}
+                  {EXTRA_RULES.map((r, i) => <RuleRow key={i} {...r} compact />)}
                   <button onClick={() => setShowAll(false)} style={{
                     background: 'none', border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-md)', color: 'var(--text-muted)',
                     padding: '8px 16px', cursor: 'pointer', fontSize: '0.82rem', alignSelf: 'flex-start',
                   }}>
-                    Show less ↑
+                    Show less
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Tagline */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.75rem',
             marginTop: '2.5rem', color: 'var(--purple-light)', fontWeight: 700, fontSize: '1.05rem',
           }}>
-            <span style={{ color: 'var(--purple-primary)' }}>▶</span>
+            <PlayIcon size={18} />
             Be rich. Get richer. Do not bankrupt.
           </div>
         </div>
 
-        {/* Right: property card */}
         <div style={{ position: 'sticky', top: '80px' }}>
           <PropertyCard />
         </div>
@@ -164,7 +159,6 @@ export function HowToPlay() {
 function PropertyCard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
-      {/* Mini board context */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
         {['100$', 'Kigali CBD', 'Surprise'].map((l, i) => (
           <div key={i} style={{
@@ -176,25 +170,21 @@ function PropertyCard() {
         ))}
       </div>
 
-      {/* Property detail card */}
       <div className="card" style={{ width: '220px', overflow: 'hidden' }}>
-        {/* Color bar */}
         <div style={{ height: '8px', background: '#6d28d9' }} />
         <div style={{ padding: '1rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <div style={{ fontSize: '1.4rem' }}>🇷🇼</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em' }}>RW</div>
             <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>Kigali CBD</div>
           </div>
 
-          {/* Rent table */}
           <div style={{ fontSize: '0.78rem', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '4px' }}>
               <span>when</span><span>get</span>
             </div>
             {PROPERTY_EXAMPLE.rents.map((r, i) => (
               <div key={i} style={{
-                display: 'flex', justifyContent: 'space-between',
-                padding: '3px 0',
+                display: 'flex', justifyContent: 'space-between', padding: '3px 0',
                 color: i === 0 ? 'var(--text-secondary)' : 'var(--text-primary)',
                 fontWeight: i > 0 ? 500 : 400,
               }}>
@@ -204,29 +194,26 @@ function PropertyCard() {
             ))}
           </div>
 
-          {/* Action buttons */}
           <div style={{ display: 'flex', gap: '6px', marginTop: '0.75rem' }}>
-            {['↑', '↓', '🗑️'].map((icon, i) => (
-              <button key={i} style={{
-                flex: i < 2 ? 1 : 'none', padding: '8px',
-                background: i === 2 ? 'rgba(239,68,68,0.1)' : 'var(--purple-primary)',
-                border: 'none', borderRadius: 'var(--radius-sm)',
-                color: i === 2 ? 'var(--red-neg)' : 'white',
-                cursor: 'pointer', fontSize: '0.9rem',
-              }}>{icon}</button>
-            ))}
+            <button style={{ flex: 1, padding: '8px', background: 'var(--purple-primary)', border: 'none', borderRadius: 'var(--radius-sm)', color: 'white', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+              <ArrowUpIcon size={16} />
+            </button>
+            <button style={{ flex: 1, padding: '8px', background: 'var(--purple-primary)', border: 'none', borderRadius: 'var(--radius-sm)', color: 'white', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+              <ArrowDownIcon size={16} />
+            </button>
+            <button style={{ padding: '8px', background: 'rgba(239,68,68,0.1)', border: 'none', borderRadius: 'var(--radius-sm)', color: 'var(--red-neg)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+              <TrashIcon size={16} />
+            </button>
           </div>
 
-          {/* Price info */}
           <div style={{
             display: 'flex', justifyContent: 'space-between',
             marginTop: '0.75rem', paddingTop: '0.75rem',
-            borderTop: '1px solid var(--border)', fontSize: '0.75rem',
-            color: 'var(--text-secondary)',
+            borderTop: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)',
           }}>
             <div><div style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>Price</div><div style={{ fontWeight: 600 }}>70,000</div></div>
-            <div><div style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>🏠</div><div style={{ fontWeight: 600 }}>20,000</div></div>
-            <div><div style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>🏨</div><div style={{ fontWeight: 600 }}>20,000</div></div>
+            <div><div style={{ color: 'var(--text-muted)', fontSize: '0.68rem', display: 'flex', justifyContent: 'center' }}><HomeIcon size={12} /></div><div style={{ fontWeight: 600 }}>20,000</div></div>
+            <div><div style={{ color: 'var(--text-muted)', fontSize: '0.68rem', display: 'flex', justifyContent: 'center' }}><HotelIcon size={12} /></div><div style={{ fontWeight: 600 }}>20,000</div></div>
           </div>
         </div>
       </div>

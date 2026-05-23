@@ -3,7 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { api, getErrorMsg } from '@/lib/api';
-import { CopyIcon, LockIcon, UsersIcon } from '@/components/layout/Icons';
+import {
+  CopyIcon, LockIcon, UsersIcon, GamepadIcon, CoinsIcon,
+  BotIcon, UserIcon, MapIcon, ShuffleIcon, HourglassIcon, DollarIcon, VacationIcon,
+  HammerIcon, PrisonIcon, BuildIcon, DiceIcon,
+} from '@/components/layout/Icons';
 
 const DEFAULT_SETTINGS = {
   maxPlayers: 4,
@@ -91,8 +95,8 @@ export default function CreateRoomPage() {
                   background: lobbyType === t ? 'rgba(124,58,237,0.12)' : 'var(--bg-elevated)',
                   color: 'var(--text-primary)', textAlign: 'left', transition: 'all 0.15s',
                 }}>
-                  <div style={{ fontSize: '1.3rem', marginBottom: '4px' }}>
-                    {t === 'friendly' ? '🎮' : '💰'}
+                  <div style={{ marginBottom: '4px', color: lobbyType === t ? 'var(--purple-light)' : 'var(--text-muted)' }}>
+                    {t === 'friendly' ? <GamepadIcon size={26} /> : <CoinsIcon size={26} />}
                   </div>
                   <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
                     {t === 'friendly' ? 'Friendly' : 'Paid'}
@@ -136,10 +140,10 @@ export default function CreateRoomPage() {
             <Section title="Prize distribution">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {[
-                  { key: '1st_only', label: '🥇 1st place only takes all', desc: 'Winner gets 90% of pool' },
-                  { key: '1st_2nd', label: '🥇🥈 Top 2 share', desc: '1st: 60% · 2nd: 30% · Platform: 10%' },
-                  { key: '1st_2nd_3rd', label: '🥇🥈🥉 Top 3 share', desc: '1st: 50% · 2nd: 25% · 3rd: 15% · Platform: 10%' },
-                  { key: 'shared', label: '🤝 Proportional share', desc: 'Ranked distribution based on final balance' },
+                  { key: '1st_only', label: '1st place only takes all', desc: 'Winner gets 90% of pool' },
+                  { key: '1st_2nd', label: 'Top 2 share', desc: '1st: 60% · 2nd: 30% · Platform: 10%' },
+                  { key: '1st_2nd_3rd', label: 'Top 3 share', desc: '1st: 50% · 2nd: 25% · 3rd: 15% · Platform: 10%' },
+                  { key: 'shared', label: 'Proportional share', desc: 'Ranked distribution based on final balance' },
                 ].map(opt => (
                   <button key={opt.key} onClick={() => set('prizeDistribution', opt.key)} style={{
                     padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer',
@@ -158,7 +162,7 @@ export default function CreateRoomPage() {
 
           {/* Game settings */}
           <Section title="Game settings">
-            <SettingToggle label="Maximum players" desc="How many players can join" icon="👥"
+            <SettingToggle label="Maximum players" desc="How many players can join" icon={<UsersIcon size={20} />}
               control={
                 <select className="select" value={settings.maxPlayers}
                   onChange={e => set('maxPlayers', parseInt(e.target.value))}>
@@ -167,18 +171,18 @@ export default function CreateRoomPage() {
               }
             />
             <SettingToggle label="Private room" desc="Only accessible via the room link"
-              icon="🔒" value={settings.privateRoom} onToggle={() => toggle('privateRoom')} />
-            <SettingToggle label="Allow bots to join" desc="Bots will join if seats are available" icon="🤖"
+              icon={<LockIcon size={20} />} value={settings.privateRoom} onToggle={() => toggle('privateRoom')} />
+            <SettingToggle label="Allow bots to join" desc="Bots will join if seats are available" icon={<BotIcon size={20} />}
               badge="Beta" value={settings.allowBots} onToggle={() => toggle('allowBots')} />
             <SettingToggle label="Only logged-in users" desc="Guests cannot join this game"
-              icon="👤" value={settings.onlyLoggedIn} onToggle={() => toggle('onlyLoggedIn')} />
+              icon={<UserIcon size={20} />} value={settings.onlyLoggedIn} onToggle={() => toggle('onlyLoggedIn')} />
             <SettingToggle label="Board map" desc="Change map tiles, properties and stacks"
-              icon="🗺️" control={<span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Rwanda Classic · More coming soon →</span>} />
+              icon={<MapIcon size={20} />} control={<span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Rwanda Classic · More coming soon →</span>} />
             <SettingToggle label="Randomize player order" desc="Shuffle turn order at game start"
-              icon="🔀" value={settings.randomizeOrder} onToggle={() => toggle('randomizeOrder')} />
+              icon={<ShuffleIcon size={20} />} value={settings.randomizeOrder} onToggle={() => toggle('randomizeOrder')} />
             {lobbyType === 'paid' && (
               <SettingToggle label="Minimum players to start"
-                desc="Game won't start until this many players join" icon="⏳"
+                desc="Game won't start until this many players join" icon={<HourglassIcon size={20} />}
                 control={
                   <select className="select" value={settings.minPlayers}
                     onChange={e => set('minPlayers', parseInt(e.target.value))}>
@@ -192,19 +196,19 @@ export default function CreateRoomPage() {
           {/* Gameplay rules */}
           <Section title="Gameplay rules">
             <SettingToggle label="×2 rent on full-set properties"
-              desc="If a player owns a full property set, the base rent is doubled" icon="💰"
+              desc="If a player owns a full property set, the base rent is doubled" icon={<DollarIcon size={20} />}
               value={settings.doubleRentFullSet} onToggle={() => toggle('doubleRentFullSet')} />
             <SettingToggle label="Vacation cash"
-              desc="If a player lands on Vacation, all collected money from taxes and bank payments will be earned" icon="🏖️"
+              desc="If a player lands on Vacation, all collected money from taxes and bank payments will be earned" icon={<VacationIcon size={20} />}
               value={settings.vacationCash} onToggle={() => toggle('vacationCash')} />
             <SettingToggle label="Auction"
-              desc="If someone skips purchasing the property landed on, it will be sold to the highest bidder" icon="🔨"
+              desc="If someone skips purchasing the property landed on, it will be sold to the highest bidder" icon={<HammerIcon size={20} />}
               value={settings.auctionEnabled} onToggle={() => toggle('auctionEnabled')} />
             <SettingToggle label="Don't collect rent while in prison"
-              desc="Rent will not be collected when landing on properties whose owners are in prison" icon="🚔"
+              desc="Rent will not be collected when landing on properties whose owners are in prison" icon={<PrisonIcon size={20} />}
               value={settings.noRentInJail} onToggle={() => toggle('noRentInJail')} />
             <SettingToggle label="Even build"
-              desc="Houses and hotels must be built and sold evenly within a property set" icon="🏗️"
+              desc="Houses and hotels must be built and sold evenly within a property set" icon={<BuildIcon size={20} />}
               value={settings.evenBuild} onToggle={() => toggle('evenBuild')} />
           </Section>
 
@@ -213,7 +217,7 @@ export default function CreateRoomPage() {
             width: '100%', padding: '1rem', fontSize: '1rem', justifyContent: 'center',
             borderRadius: 'var(--radius-md)', opacity: loading ? 0.7 : 1,
           }}>
-            {loading ? 'Creating...' : '🎲 Create Room'}
+            {loading ? 'Creating...' : <><DiceIcon size={18} /> Create Room</>}
           </button>
         </div>
       </div>
@@ -237,7 +241,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function SettingToggle({ label, desc, icon, value, onToggle, control, badge }: {
-  label: string; desc?: string; icon?: string;
+  label: string; desc?: string; icon?: React.ReactNode;
   value?: boolean; onToggle?: () => void;
   control?: React.ReactNode; badge?: string;
 }) {
@@ -247,7 +251,7 @@ function SettingToggle({ label, desc, icon, value, onToggle, control, badge }: {
       padding: '0.6rem 0', borderBottom: '1px solid var(--border)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-        {icon && <span style={{ fontSize: '1.1rem', width: '24px', textAlign: 'center' }}>{icon}</span>}
+        {icon && <span style={{ width: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}>{icon}</span>}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{label}</span>

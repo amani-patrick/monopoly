@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
 import { GAME_EVENTS, REDIS_CHANNELS, REDIS_KEYS } from '@umukino/shared-events';
+import { LOCAL_SERVICE_URLS } from '@umukino/shared-types';
 
 interface AuthSocket extends Socket {
   userId: string; displayName: string; role: string;
@@ -40,8 +41,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private readonly config: ConfigService,
     @InjectRedis() private readonly redis: Redis,
   ) {
-    this.gameUrl = config.get('GAME_SERVICE_URL', 'http://game-service:3002');
-    this.roomUrl = config.get('ROOM_SERVICE_URL', 'http://room-service:3005');
+    this.gameUrl = config.get('GAME_SERVICE_URL', LOCAL_SERVICE_URLS.game);
+    this.roomUrl = config.get('ROOM_SERVICE_URL', LOCAL_SERVICE_URLS.room);
   }
 
   afterInit() { this.logger.log('WS Gateway ready'); this.bridgeRedis(); }

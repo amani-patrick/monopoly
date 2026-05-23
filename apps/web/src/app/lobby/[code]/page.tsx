@@ -5,7 +5,10 @@ import { io, Socket } from 'socket.io-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
-import { CopyIcon, UsersIcon, LockIcon, PlayIcon } from '@/components/layout/Icons';
+import {
+  CopyIcon, UsersIcon, LockIcon, PlayIcon, GamepadIcon, EyeIcon, ShopIcon,
+  CheckIcon, DiceIcon, MapIcon, BotIcon, ClockIcon, InfoIcon,
+} from '@/components/layout/Icons';
 
 const AVATARS = ['green','yellow','orange','red','blue','cyan','teal','pink','purple','brown'];
 
@@ -98,10 +101,10 @@ export default function LobbyPage() {
           <div className="animate-slide-up" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             {isInGame ? (
               <>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎮</div>
+                <div style={{ marginBottom: '1rem', color: 'var(--purple-light)' }}><GamepadIcon size={64} /></div>
                 <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.5rem' }}>Game in progress</h2>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>This game has already started.</p>
-                {isPaid && <button onClick={handleSpectate} className="btn-secondary">👁 Spectate as viewer</button>}
+                {isPaid && <button onClick={handleSpectate} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><EyeIcon size={16} /> Spectate as viewer</button>}
               </>
             ) : (
               <>
@@ -115,7 +118,7 @@ export default function LobbyPage() {
                       transform: selectedAvatar === a ? 'scale(1.15)' : 'scale(1)',
                     }}>
                       <div className={`avatar avatar-${a}`} style={{ width: '100%', height: '100%', borderRadius: '50%', fontSize: '0.75rem' }}>
-                        {selectedAvatar === a ? '✓' : ''}
+                        {selectedAvatar === a ? <CheckIcon size={14} /> : null}
                       </div>
                     </button>
                   ))}
@@ -128,13 +131,13 @@ export default function LobbyPage() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
                     <button onClick={handleReady} className={myPlayer.ready ? 'btn-secondary' : 'btn-primary'} style={{ fontSize: '1rem', padding: '0.75rem 2rem', borderRadius: '50px' }}>
-                      {myPlayer.ready ? '✓ Ready!' : 'Mark as Ready'}
+                      {myPlayer.ready ? <><CheckIcon size={16} /> Ready!</> : 'Mark as Ready'}
                     </button>
                     {isHost && (
                       <button onClick={handleStart} disabled={!allReady || starting} className="btn-gold" style={{
                         fontSize: '1rem', padding: '0.75rem 2rem', borderRadius: '50px', opacity: allReady ? 1 : 0.5,
                       }}>
-                        {starting ? 'Starting…' : '▶ Start Game'}
+                        {starting ? 'Starting…' : <><PlayIcon size={16} /> Start Game</>}
                       </button>
                     )}
                     {!allReady && <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Waiting for all players to be ready…</p>}
@@ -143,7 +146,7 @@ export default function LobbyPage() {
 
                 <div style={{ marginTop: '1rem' }}>
                   <button className="btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 14px', borderRadius: '50px' }}>
-                    🛒 Get more appearances
+                    <ShopIcon size={14} /> Get more appearances
                   </button>
                 </div>
               </>
@@ -157,19 +160,19 @@ export default function LobbyPage() {
           <div style={{ padding: '1.25rem', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
               <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Share this game</span>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ℹ</span>
+              <InfoIcon size={14} />
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input readOnly value={gameLink} className="input" style={{ fontSize: '0.78rem', padding: '0.5rem 0.75rem' }} onClick={e => (e.target as HTMLInputElement).select()} />
               <button onClick={copyLink} className="btn-secondary" style={{ padding: '0.5rem 0.75rem', flexShrink: 0 }}>
-                {copied ? '✓' : <CopyIcon />}
+                {copied ? <CheckIcon size={16} /> : <CopyIcon />}
               </button>
             </div>
           </div>
 
           {/* Waiting status */}
           <div style={{ padding: '1rem 1.25rem', background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            {isInGame ? '🎮 Game in progress' : '⏳ Waiting for players…'}
+            {isInGame ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}><GamepadIcon size={14} /> Game in progress</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}><ClockIcon size={14} /> Waiting for players…</span>}
           </div>
 
           {/* Players */}
@@ -190,7 +193,7 @@ export default function LobbyPage() {
                     </div>
                   </div>
                   <div style={{ fontSize: '0.75rem', color: p.ready ? 'var(--green-pos)' : 'var(--text-muted)' }}>
-                    {p.ready ? '✓ Ready' : 'Waiting'}
+                    {p.ready ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CheckIcon size={12} /> Ready</span> : 'Waiting'}
                   </div>
                 </div>
               ))}
@@ -217,13 +220,13 @@ export default function LobbyPage() {
           <div style={{ padding: '1.25rem' }}>
             <h3 style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--purple-light)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.85rem' }}>Game Settings</h3>
             {[
-              { label: 'Maximum players', value: room.settings?.maxPlayers || room.maxPlayers || 4, icon: '👥' },
-              { label: 'Private room', value: (room.isPrivate || room.settings?.privateRoom) ? 'On' : 'Off', icon: '🔒' },
-              { label: 'Allow bots', value: room.settings?.allowBots ? 'On' : 'Off', icon: '🤖' },
-              { label: 'Board map', value: 'Rwanda Classic', icon: '🗺️' },
-            ].map(({ label, value, icon }) => (
+              { label: 'Maximum players', value: room.settings?.maxPlayers || room.maxPlayers || 4, Icon: UsersIcon },
+              { label: 'Private room', value: (room.isPrivate || room.settings?.privateRoom) ? 'On' : 'Off', Icon: LockIcon },
+              { label: 'Allow bots', value: room.settings?.allowBots ? 'On' : 'Off', Icon: BotIcon },
+              { label: 'Board map', value: 'Rwanda Classic', Icon: MapIcon },
+            ].map(({ label, value, Icon }) => (
               <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid var(--border)', fontSize: '0.83rem' }}>
-                <span style={{ color: 'var(--text-secondary)', display: 'flex', gap: '7px' }}><span>{icon}</span>{label}</span>
+                <span style={{ color: 'var(--text-secondary)', display: 'flex', gap: '7px', alignItems: 'center' }}><Icon size={14} />{label}</span>
                 <span style={{ fontWeight: 600, color: value === 'Off' ? 'var(--text-muted)' : 'var(--text-primary)' }}>{value}</span>
               </div>
             ))}
@@ -254,7 +257,7 @@ export default function LobbyPage() {
 function LoadingScreen() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ fontSize: '3rem' }} className="animate-dice">🎲</div>
+      <div className="animate-dice" style={{ color: 'var(--purple-light)' }}><DiceIcon size={48} /></div>
       <p style={{ color: 'var(--text-secondary)' }}>Loading game…</p>
     </div>
   );

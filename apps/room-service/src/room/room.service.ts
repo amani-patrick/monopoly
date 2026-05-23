@@ -13,6 +13,7 @@ import { firstValueFrom } from 'rxjs';
 import { Room, RoomPlayer, GameSettings } from '@umukino/shared-types';
 import { REDIS_KEYS } from '@umukino/shared-events';
 import { RoomEntity } from './entities/room.entity';
+import { LOCAL_SERVICE_URLS } from '@umukino/shared-types';
 
 const PLATFORM_CUT = 0.10;
 
@@ -34,8 +35,8 @@ export class RoomService {
     private readonly dataSource: DataSource,
   ) {}
 
-  private get walletUrl() { return this.config.get('WALLET_SERVICE_URL', 'http://wallet-service:3004'); }
-  private get gameUrl()   { return this.config.get('GAME_SERVICE_URL',   'http://game-service:3002'); }
+  private get walletUrl() { return this.config.get('WALLET_SERVICE_URL', LOCAL_SERVICE_URLS.wallet); }
+  private get gameUrl()   { return this.config.get('GAME_SERVICE_URL', LOCAL_SERVICE_URLS.game); }
 
   async createRoom(dto: CreateRoomDto): Promise<Room> {
     const code = this.generateCode();
@@ -124,6 +125,24 @@ export class RoomService {
 
     const dbRoom = await this.roomRepo.findOneOrFail({ where: { id: room.id } });
     const minP = (room.settings as any).minPlayers || 2;
+    const maxP = room.settings?.maxPlayers || room.maxPlayers || 4;
+
+    if (room.settings?.allowBots) {
+      const botNames = ['Kigali Bot', 'Butare AI', 'Gisenyi CPU', 'Musanze Prime', 'Rubavu Ace', 'Huye Hawk', 'Nyagatare X'];
+      let botIdx = 0;
+      while (room.players.length < minP && room.players.length < maxP) {
+        const botId = `bot:${uuid()}`;
+        room.players.push({
+          userId: botId,
+          displayName: botNames[botIdx % botNames.length],
+          avatar: ['purple', 'cyan', 'orange', 'teal', 'red', 'blue', 'yellow'][botIdx % 7],
+          ready: true,
+          isBot: true,
+        });
+        botIdx++;
+      }
+    }
+
     if (room.players.length < minP) throw new BadRequestException(`Need at least ${minP} players`);
 
     // Mandatory randomize on paid lobbies
@@ -135,6 +154,7 @@ export class RoomService {
     if (dbRoom.entryFeeRwf > 0) {
       const pool = dbRoom.entryFeeRwf * players.length;
       for (const p of players) {
+        if (p.isBot) continue;
         await this.releaseFundHold(p.userId, dbRoom.entryFeeRwf, room.id, 'deduct');
       }
       await this.roomRepo.update(room.id, { prizePool: pool });

@@ -4,8 +4,10 @@ import {
   UsePipes, ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { XUserGuard } from './guards/x-user.guard';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
+import { FirebaseAuthService } from './firebase-auth.service';
 import { IsEmail, IsString, MinLength, MaxLength, Matches } from 'class-validator';
 
 // ---- DTOs ----
@@ -19,6 +21,7 @@ class LoginDto {
   @IsString() password: string;
 }
 class RefreshDto { @IsString() refreshToken: string; }
+class FirebaseAuthDto { @IsString() idToken: string; }
 class ChangePasswordDto {
   @IsString() oldPassword: string;
   @IsString() @MinLength(8) newPassword: string;
@@ -32,7 +35,10 @@ class UpdateProfileDto {
 @UseGuards(ThrottlerGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly firebase: FirebaseAuthService,
+  ) {}
 
   // ---- Health ----
   @Get('health')
@@ -62,14 +68,28 @@ export class AuthController {
 
   // ---- Logout ----
   @Post('auth/logout')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async logout(@Body() dto: RefreshDto) {
     await this.auth.logout(dto.refreshToken);
     return { success: true };
   }
 
-  // ---- Google OAuth ----
+  // ---- Firebase Google (client-side) ----
+  @Post('auth/firebase')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  async firebaseAuth(@Body() dto: FirebaseAuthDto) {
+    const profile = await this.firebase.verifyIdToken(dto.idToken);
+    return this.auth.handleFirebaseAuth({
+      googleId: profile.uid,
+      email: profile.email,
+      displayName: profile.displayName,
+      picture: profile.picture,
+    });
+  }
+
+  // ---- Google OAuth (Passport redirect — legacy) ----
   @Get('auth/google')
   @UseGuards(AuthGuard('google'))
   googleAuth() { /* Passport redirects */ }
@@ -82,20 +102,20 @@ export class AuthController {
 
   // ---- Profile ----
   @Get('users/me')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async getMe(@Req() req: any) {
     return this.auth.getProfile(req.user.sub);
   }
 
   @Put('users/me')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async updateMe(@Req() req: any, @Body() dto: UpdateProfileDto) {
     await this.auth.updateProfile(req.user.sub, dto);
     return this.auth.getProfile(req.user.sub);
   }
 
   @Put('users/me/password')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
     await this.auth.changePassword(req.user.sub, dto.oldPassword, dto.newPassword);
@@ -104,7 +124,7 @@ export class AuthController {
 
   // ---- Internal ----
   @Get('users/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async getUser(@Param('id') id: string, @Req() req: any) {
     if (req.user.sub !== id && req.user.role !== 'admin') {
       throw new ForbiddenException('Access denied');
@@ -114,14 +134,14 @@ export class AuthController {
 
   // ---- Admin ----
   @Get('admin/users')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async adminUsers(@Req() req: any) {
     if (req.user.role !== 'admin') throw new ForbiddenException('Admin access required');
     return this.auth.getUsers(1, 50);
   }
 
   @Post('admin/users/:userId/ban')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async adminBan(@Param('userId') userId: string, @Body() body: { reason: string }, @Req() req: any) {
     if (req.user.role !== 'admin') throw new ForbiddenException('Admin access required');
@@ -130,7 +150,7 @@ export class AuthController {
   }
 
   @Post('admin/users/:userId/unban')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async adminUnban(@Param('userId') userId: string, @Req() req: any) {
     if (req.user.role !== 'admin') throw new ForbiddenException('Admin access required');

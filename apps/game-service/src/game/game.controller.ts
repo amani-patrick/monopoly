@@ -3,7 +3,7 @@ import {
   UseGuards, HttpCode, HttpStatus, ValidationPipe, UsePipes,
   BadRequestException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { XUserGuard } from '../guards/x-user.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { GameEngineService } from './game-engine.service';
 import { AntiCollusionGameProxy } from '../anti-collusion/anti-collusion.proxy';
@@ -34,7 +34,7 @@ export class GameController {
 
   /** Get live game state — authenticated players + spectators only */
   @Get('games/:gameId')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async getGame(@Param('gameId') gameId: string, @Req() req: any) {
     const state = await this.engine.getState(gameId);
     const isPlayer = state.players.some((p: any) => p.userId === req.user.sub);
@@ -48,7 +48,7 @@ export class GameController {
 
   /** Admin: force-end a game */
   @Post('admin/games/:gameId/end')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async forceEnd(@Param('gameId') gameId: string, @Body() body: { reason: string }, @Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');
@@ -58,7 +58,7 @@ export class GameController {
   }
 
   @Get('admin/games')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async adminGames(@Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');
     const keys = await this.engine['redis'].keys('game:*:state');
@@ -74,7 +74,7 @@ export class GameController {
   }
 
   @Get('admin/dashboard')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async dashboard(@Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');
     const gameKeys = await this.engine['redis'].keys('game:*:state');
@@ -87,14 +87,14 @@ export class GameController {
   }
 
   @Get('admin/revenue')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async revenue(@Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');
     return { message: 'Revenue data lives in room-service DB — query via SQL or extend this endpoint.' };
   }
 
   @Post('admin/config')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async setConfig(@Body() body: { key: string; value: string }, @Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');

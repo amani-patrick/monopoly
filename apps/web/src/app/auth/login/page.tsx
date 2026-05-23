@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { getErrorMsg } from '@/lib/api';
+import { DiceIcon } from '@/components/layout/Icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎲</div>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--purple-light)', display: 'flex', justifyContent: 'center' }}><DiceIcon size={48} /></div>
             <h1 style={{ fontSize: '1.8rem', fontWeight: 900, background: 'linear-gradient(135deg,#fff,var(--purple-light))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>UMUKINO</h1>
           </Link>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Welcome back! Log in to play.</p>

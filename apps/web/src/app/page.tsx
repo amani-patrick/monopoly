@@ -1,25 +1,32 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { PublicRoomsList } from '@/components/lobby/PublicRoomsList';
 import { HowToPlay } from '@/components/landing/HowToPlay';
 import { useAuth } from '@/hooks/useAuth';
-import { DiceIcon, PlayIcon, UsersIcon, LockIcon, ChevronDownIcon } from '@/components/layout/Icons';
+import type { IconProps } from '@/components/layout/Icons';
+import {
+  DiceIcon, PlayIcon, UsersIcon, LockIcon, ChevronDownIcon,
+  BankIcon, CardIcon, HomeIcon, PlaneIcon, CyberIcon, QuestionIcon,
+  CoinsIcon, LightbulbIcon, OfficeIcon, GemIcon, TargetIcon,
+} from '@/components/layout/Icons';
 
-const FLOATERS = [
-  { emoji: '🏦', x: 8,  y: 25, size: 52, delay: 0 },
-  { emoji: '💳', x: 5,  y: 55, size: 38, delay: 0.8 },
-  { emoji: '🏠', x: 12, y: 72, size: 44, delay: 1.5 },
-  { emoji: '✈️', x: 20, y: 40, size: 36, delay: 0.4 },
-  { emoji: '⚡', x: 72, y: 28, size: 40, delay: 1.1 },
-  { emoji: '❓', x: 80, y: 55, size: 54, delay: 0.2 },
-  { emoji: '💰', x: 85, y: 75, size: 38, delay: 1.7 },
-  { emoji: '🎲', x: 90, y: 35, size: 32, delay: 0.6 },
-  { emoji: '💡', x: 15, y: 85, size: 34, delay: 2.0 },
-  { emoji: '🏢', x: 75, y: 85, size: 46, delay: 0.9 },
-  { emoji: '💎', x: 3,  y: 40, size: 30, delay: 1.3 },
-  { emoji: '🎯', x: 92, y: 60, size: 32, delay: 1.8 },
+type FloaterIcon = React.ComponentType<IconProps>;
+
+const FLOATERS: { Icon: FloaterIcon; x: number; y: number; size: number; delay: number }[] = [
+  { Icon: BankIcon, x: 8,  y: 25, size: 52, delay: 0 },
+  { Icon: CardIcon, x: 5,  y: 55, size: 38, delay: 0.8 },
+  { Icon: HomeIcon, x: 12, y: 72, size: 44, delay: 1.5 },
+  { Icon: PlaneIcon, x: 20, y: 40, size: 36, delay: 0.4 },
+  { Icon: CyberIcon, x: 72, y: 28, size: 40, delay: 1.1 },
+  { Icon: QuestionIcon, x: 80, y: 55, size: 54, delay: 0.2 },
+  { Icon: CoinsIcon, x: 85, y: 75, size: 38, delay: 1.7 },
+  { Icon: DiceIcon, x: 90, y: 35, size: 32, delay: 0.6 },
+  { Icon: LightbulbIcon, x: 15, y: 85, size: 34, delay: 2.0 },
+  { Icon: OfficeIcon, x: 75, y: 85, size: 46, delay: 0.9 },
+  { Icon: GemIcon, x: 3,  y: 40, size: 30, delay: 1.3 },
+  { Icon: TargetIcon, x: 92, y: 60, size: 32, delay: 1.8 },
 ];
 
 export default function HomePage() {
@@ -39,15 +46,18 @@ export default function HomePage() {
         alignItems: 'center', justifyContent: 'center', paddingTop: '52px',
       }}>
         {/* Floating icons */}
-        {mounted && FLOATERS.map((f, i) => (
-          <div key={i} style={{
-            position: 'absolute', left: `${f.x}%`, top: `${f.y}%`,
-            fontSize: `${f.size}px`, opacity: 0.06, userSelect: 'none', pointerEvents: 'none',
-            animation: `${i % 2 === 0 ? 'float' : 'floatReverse'} ${3.5 + i * 0.3}s ease-in-out ${f.delay}s infinite`,
-          }}>
-            {f.emoji}
-          </div>
-        ))}
+        {mounted && FLOATERS.map((f, i) => {
+          const Icon = f.Icon;
+          return (
+            <div key={i} style={{
+              position: 'absolute', left: `${f.x}%`, top: `${f.y}%`,
+              opacity: 0.08, color: 'var(--purple-light)', userSelect: 'none', pointerEvents: 'none',
+              animation: `${i % 2 === 0 ? 'float' : 'floatReverse'} ${3.5 + i * 0.3}s ease-in-out ${f.delay}s infinite`,
+            }}>
+              <Icon size={Math.round(f.size * 0.55)} strokeWidth={1.25} />
+            </div>
+          );
+        })}
         <div style={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
           width: '700px', height: '700px', pointerEvents: 'none',

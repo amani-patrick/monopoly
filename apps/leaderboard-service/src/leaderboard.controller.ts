@@ -1,6 +1,5 @@
-import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Param } from '@nestjs/common';
 import { LeaderboardService } from './leaderboard.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller()
 export class LeaderboardController {

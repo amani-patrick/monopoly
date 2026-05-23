@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { GamepadIcon, CoinsIcon, MapIcon, DiceIcon, EyeIcon } from '@/components/layout/Icons';
 
 interface Room {
   id: string;
@@ -58,7 +59,7 @@ export function PublicRoomsList() {
             fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
             transition: 'all 0.15s',
           }}>
-            {f === 'all' ? 'All' : f === 'free' ? '🎮 Free' : '💰 Paid'}
+            {f === 'all' ? 'All' : f === 'free' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><GamepadIcon size={14} /> Free</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><CoinsIcon size={14} /> Paid</span>}
           </button>
         ))}
         <div style={{ marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--text-muted)', alignSelf: 'center' }}>
@@ -106,7 +107,7 @@ function RoomCard({ room }: { room: Room }) {
         display: 'flex', alignItems: 'center', gap: '8px',
         border: '1px solid var(--border)',
       }}>
-        <span style={{ fontSize: '1.1rem' }}>🗺️</span>
+        <MapIcon size={20} />
         <div>
           <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>Rwanda Classic</div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>40 spaces · Rwanda + International</div>
@@ -142,8 +143,8 @@ function RoomCard({ room }: { room: Room }) {
       {/* Rules chips */}
       <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '1rem' }}>
         {room.settings?.doubleRentFullSet && <RuleChip label="2× rent" />}
-        {room.settings?.vacationCash && <RuleChip label="Vacation 💰" />}
-        {room.settings?.auctionEnabled && <RuleChip label="Auction 🔨" />}
+        {room.settings?.vacationCash && <RuleChip label="Vacation cash" />}
+        {room.settings?.auctionEnabled && <RuleChip label="Auction" />}
         {room.settings?.noRentInJail && <RuleChip label="Jail safe" />}
       </div>
 
@@ -163,7 +164,7 @@ function RoomCard({ room }: { room: Room }) {
         </div>
         <Link href={`/lobby/${room.code}`} className={isPaid ? 'btn-gold' : 'btn-primary'}
           style={{ fontSize: '0.85rem', padding: '0.5rem 1.25rem', borderRadius: '50px' }}>
-          {playerCount >= maxPlayers ? '👁 Spectate' : 'Join →'}
+          {playerCount >= maxPlayers ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><EyeIcon size={14} /> Spectate</span> : 'Join →'}
         </Link>
       </div>
     </div>
@@ -200,7 +201,7 @@ function RoomsSkeleton() {
 function EmptyRooms({ filter }: { filter: string }) {
   return (
     <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
-      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎲</div>
+      <div style={{ marginBottom: '1rem', color: 'var(--purple-light)', display: 'flex', justifyContent: 'center' }}><DiceIcon size={48} /></div>
       <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>No {filter === 'all' ? '' : filter} rooms open</div>
       <div style={{ fontSize: '0.85rem' }}>Be the first to create one!</div>
     </div>

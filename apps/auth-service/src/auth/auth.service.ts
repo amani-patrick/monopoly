@@ -93,11 +93,29 @@ export class AuthService {
   // GOOGLE OAUTH
   // ============================================================
 
+  async handleFirebaseAuth(profile: {
+    googleId: string;
+    email: string;
+    displayName: string;
+    picture?: string;
+  }): Promise<AuthTokens> {
+    return this.linkOrCreateOAuthUser(profile);
+  }
+
   async handleGoogleAuth(googleUser: {
     googleId: string;
     email: string;
     displayName: string;
     picture: string;
+  }): Promise<AuthTokens> {
+    return this.linkOrCreateOAuthUser(googleUser);
+  }
+
+  private async linkOrCreateOAuthUser(googleUser: {
+    googleId: string;
+    email: string;
+    displayName: string;
+    picture?: string;
   }): Promise<AuthTokens> {
     let user = await this.userRepo.findOne({ where: { googleId: googleUser.googleId } });
 
@@ -115,7 +133,7 @@ export class AuthService {
           email: googleUser.email.toLowerCase(),
           googleId: googleUser.googleId,
           displayName: googleUser.displayName.trim().slice(0, 30),
-          avatar: googleUser.picture,
+          avatar: googleUser.picture || this.randomAvatar(),
           role: 'player',
           isVerified: true, // Google verifies email
           isBanned: false,
@@ -228,6 +246,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       displayName: user.displayName,
+      role: (user.role as JwtPayload['role']) || 'player',
     };
 
     const [accessToken, refreshToken] = await Promise.all([

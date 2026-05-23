@@ -51,6 +51,16 @@ export function useAuth() {
     return data;
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    const { data } = await api.loginWithGoogle(idToken);
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    await fetchMe();
+    return data;
+  };
+
+  const refreshUser = fetchMe;
+
   const logout = async () => {
     const rt = localStorage.getItem('refreshToken') || '';
     await api.logout(rt).catch(() => {});

@@ -1,120 +1,147 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
-import { 
-  GameState, PlayerStatus, TurnPhase, GameStatus, 
-  SpaceType, Player 
-} from '@umukino/shared-types';
-import { BOARD_SPACES } from '@umukino/board-data';
+import { GameState, Player, TurnPhase } from '@umukino/shared-types';
+import { GAME_EVENTS, REDIS_CHANNELS } from '@umukino/shared-events';
+import { LOCAL_SERVICE_URLS } from '@umukino/shared-types';
+import { BotBrain } from './bot-brain';
 
 @Injectable()
-export class BotService implements OnModuleInit {
+export class BotService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(BotService.name);
-  private redis: Redis;
-  private readonly gatewayUrl: string;
+  private subscriber: Redis;
+  private readonly gameServiceUrl: string;
+  private readonly botKey: string;
+  private readonly brain = new BotBrain('hard');
+  private readonly pending = new Map<string, NodeJS.Timeout>();
 
   constructor(
     private readonly config: ConfigService,
     private readonly http: HttpService,
   ) {
-    this.gatewayUrl = this.config.get('GATEWAY_URL', 'http://api-gateway:4000');
+    this.gameServiceUrl = this.config.get('GAME_SERVICE_URL', LOCAL_SERVICE_URLS.game);
+    this.botKey = this.config.get('BOT_INTERNAL_KEY', 'bot-secret');
   }
 
   async onModuleInit() {
-    this.redis = new Redis(this.config.get('REDIS_URL', 'redis://localhost:6379'));
-    
-    // Listen to game events
-    this.redis.subscribe('umukino:game-events');
-    this.redis.on('message', (channel, message) => {
-      if (channel === 'umukino:game-events') {
-        const event = JSON.parse(message);
-        this.handleGameEvent(event);
-      }
-    });
-
-    this.logger.log('Bot Service Initialized & Listening to events');
-    this.runTrainingPipeline();
+    this.subscriber = new Redis(this.config.get('REDIS_URL', 'redis://127.0.0.1:6379'));
+    await this.subscriber.subscribe(REDIS_CHANNELS.GAME_EVENTS);
+    this.subscriber.on('message', (_ch, raw) => this.onRedisMessage(raw));
+    this.logger.log(`Bot engine listening → ${this.gameServiceUrl}`);
   }
 
-  private async handleGameEvent(event: any) {
-    const { gameId, state } = event.data || {};
-    if (!state) return;
-
-    // Check if it's a bot's turn
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    if (currentPlayer && currentPlayer.isBot) {
-      this.logger.debug(`Bot turn detected in game ${state.id} phase ${state.turnPhase}`);
-      // Add small delay to simulate thinking
-      setTimeout(() => this.makeMove(state, currentPlayer), 1500);
-    }
+  async onModuleDestroy() {
+    for (const t of this.pending.values()) clearTimeout(t);
+    await this.subscriber?.quit();
   }
 
-  private async makeMove(state: GameState, bot: Player) {
+  private onRedisMessage(raw: string) {
     try {
-      switch (state.turnPhase) {
-        case TurnPhase.ROLL:
-          await this.performAction(state.id, bot.userId, 'roll');
-          break;
+      const { event, data } = JSON.parse(raw) as { event: string; data: Record<string, unknown> };
+      const state = data.state as GameState | undefined;
+      if (!state?.id) return;
 
-        case TurnPhase.BUY_DECISION:
-          const space = BOARD_SPACES[bot.position];
-          const price = space.price || 0;
-          // Simple logic: buy if we have at least 1000 left after purchase
-          if (bot.balance - price >= 1000) {
-            await this.performAction(state.id, bot.userId, 'buy');
-          } else {
-            await this.performAction(state.id, bot.userId, 'skip-buy');
-          }
-          break;
+      const triggers = [
+        GAME_EVENTS.GAME_STARTED,
+        GAME_EVENTS.GAME_STATE_SYNC,
+        GAME_EVENTS.TURN_STARTED,
+        GAME_EVENTS.TURN_ENDED,
+        GAME_EVENTS.TURN_DICE_ROLLED,
+        GAME_EVENTS.PROPERTY_PURCHASED,
+        GAME_EVENTS.PROPERTY_SKIPPED,
+        GAME_EVENTS.AUCTION_STARTED,
+        GAME_EVENTS.AUCTION_BID_PLACED,
+        GAME_EVENTS.AUCTION_SOLD,
+        GAME_EVENTS.AUCTION_NO_BIDS,
+        GAME_EVENTS.TRADE_COMPLETED,
+        GAME_EVENTS.JAIL_SENT,
+        GAME_EVENTS.CARD_EFFECT_APPLIED,
+      ];
 
-        case TurnPhase.END:
-          await this.performAction(state.id, bot.userId, 'end-turn');
-          break;
+      if (!triggers.includes(event as typeof triggers[number])) return;
 
-        case TurnPhase.AUCTION:
-          if (state.activeAuction) {
-            const currentBid = state.activeAuction.currentBid;
-            const marketValue = BOARD_SPACES[state.activeAuction.spaceIndex].price || 0;
-            // Bid if current bid is less than 80% of market value
-            if (currentBid < marketValue * 0.8 && bot.balance > currentBid + 500) {
-              await this.performAction(state.id, bot.userId, 'bid', { amount: currentBid + 500 });
-            }
-          }
-          break;
-      }
-    } catch (err) {
-      this.logger.error(`Error performing bot action: ${err.message}`);
+      const bot = state.players[state.currentPlayerIndex];
+      if (!bot?.isBot) return;
+
+      this.scheduleTurn(state.id, bot, state);
+    } catch (err: any) {
+      this.logger.error(`Event parse error: ${err.message}`);
     }
   }
 
-  private async performAction(gameId: string, userId: string, action: string, data: any = {}) {
-    this.logger.log(`Bot ${userId} performing ${action} in ${gameId}`);
+  private scheduleTurn(gameId: string, bot: Player, snapshot: GameState) {
+    const key = gameId;
+    if (this.pending.has(key)) clearTimeout(this.pending.get(key)!);
+
+    const delay = 800 + Math.floor(Math.random() * 700);
+    const timer = setTimeout(() => this.runTurn(gameId, bot.id, snapshot.turnPhase), delay);
+    this.pending.set(key, timer);
+  }
+
+  private async runTurn(gameId: string, playerId: string, lastPhase?: TurnPhase) {
+    this.pending.delete(gameId);
     try {
-      await firstValueFrom(
-        this.http.post(`${this.gatewayUrl}/games/${gameId}/actions`, {
-          action,
-          ...data
-        }, {
-          headers: { 'x-bot-key': this.config.get('BOT_INTERNAL_KEY', 'bot-secret') }
-        })
-      );
-    } catch (err) {
-      // If action fails, might be due to race condition or invalid state
-      this.logger.warn(`Bot action failed: ${err.response?.data?.message || err.message}`);
+      let state = await this.fetchState(gameId);
+      let bot = state.players.find(p => p.id === playerId);
+      if (!bot?.isBot) return;
+      if (state.players[state.currentPlayerIndex]?.id !== playerId) return;
+
+      let safety = 0;
+      while (safety < 12) {
+        safety++;
+        bot = state.players.find(p => p.id === playerId)!;
+        const decision = this.brain.decide(state, bot);
+        if (!decision) break;
+
+        if (state.turnPhase === lastPhase && decision.action === 'end-turn' && safety === 1) {
+          break;
+        }
+        lastPhase = state.turnPhase;
+
+        state = await this.performAction(gameId, playerId, decision.action, {
+          amount: decision.amount,
+          spaceIndex: decision.spaceIndex,
+        });
+
+        if (state.turnPhase === TurnPhase.END && decision.action !== 'end-turn') {
+          continue;
+        }
+        if (state.turnPhase === TurnPhase.ROLL && decision.action === 'end-turn') {
+          break;
+        }
+        if (decision.action === 'finalize-auction') break;
+        if (state.status === 'FINISHED') break;
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message;
+      this.logger.warn(`Bot turn failed [${gameId}]: ${msg}`);
     }
   }
 
-  /**
-   * Training Pipeline Placeholder
-   * In a real app, this would use Reinforcement Learning to improve bot strategies
-   */
-  private runTrainingPipeline() {
-    this.logger.log('Starting Bot Training Pipeline...');
-    setInterval(() => {
-      // Logic to analyze historical game data and update bot weights/strategies
-      this.logger.debug('Training iteration complete: Optimized property valuation parameters');
-    }, 1000 * 60 * 60); // Every hour
+  private async fetchState(gameId: string): Promise<GameState> {
+    const { data } = await firstValueFrom(
+      this.http.get(`${this.gameServiceUrl}/internal/bot/games/${gameId}/state`, {
+        headers: { 'x-bot-key': this.botKey },
+      }),
+    );
+    return data;
+  }
+
+  private async performAction(
+    gameId: string,
+    playerId: string,
+    action: string,
+    extra: { amount?: number; spaceIndex?: number } = {},
+  ): Promise<GameState> {
+    const { data } = await firstValueFrom(
+      this.http.post(
+        `${this.gameServiceUrl}/internal/bot/games/${gameId}/action`,
+        { playerId, action, ...extra },
+        { headers: { 'x-bot-key': this.botKey }, timeout: 15000 },
+      ),
+    );
+    return data;
   }
 }

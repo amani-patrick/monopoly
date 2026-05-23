@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { HttpModule } from '@nestjs/axios';
@@ -10,7 +8,7 @@ import { HttpModule } from '@nestjs/axios';
 
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
-import { JwtStrategy } from './guards/jwt.strategy';
+import { XUserGuard } from './guards/x-user.guard';
 
 @Module({
   imports: [
@@ -20,17 +18,12 @@ import { JwtStrategy } from './guards/jwt.strategy';
     
     
     
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (cfg: ConfigService) => ({ secret: cfg.get('JWT_ACCESS_SECRET') }),
-    }),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({ config: { url: cfg.get('REDIS_URL') } }),
     }),
   ],
   controllers: [NotificationController],
-  providers: [NotificationService, JwtStrategy],
+  providers: [NotificationService, XUserGuard],
 })
 export class AppModule {}

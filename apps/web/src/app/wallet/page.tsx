@@ -4,11 +4,15 @@ import { Navbar } from '@/components/layout/Navbar';
 import { useAuth } from '@/hooks/useAuth';
 import { api, getErrorMsg } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import {
+  MobileIcon, BanknoteIcon, GiftIcon, CoinsIcon, DepositIcon, WithdrawIcon,
+  ClipboardIcon, LockIcon, TrophyIcon, GamepadIcon, IconBox,
+} from '@/components/layout/Icons';
 
 const PROVIDERS = [
-  { id: 'MTN_MOMO',     label: 'MTN MoMo',    icon: '📱', color: '#f59e0b', placeholder: '07XXXXXXXX' },
-  { id: 'AIRTEL_MONEY', label: 'Airtel Money', icon: '📲', color: '#ef4444', placeholder: '07XXXXXXXX' },
-  { id: 'USDT',         label: 'USDT',         icon: '₮',  color: '#22c55e', placeholder: 'TRC20 address' },
+  { id: 'MTN_MOMO',     label: 'MTN MoMo',    color: '#f59e0b', placeholder: '07XXXXXXXX' },
+  { id: 'AIRTEL_MONEY', label: 'Airtel Money', color: '#ef4444', placeholder: '07XXXXXXXX' },
+  { id: 'USDT',         label: 'USDT',         color: '#22c55e', placeholder: 'TRC20 address' },
 ];
 
 const QUICK_AMOUNTS = [1000, 2000, 5000, 10000, 20000, 50000];
@@ -66,12 +70,12 @@ export default function WalletPage() {
         {/* Balance cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '2rem' }}>
           {[
-            { label: 'Real Balance', value: balance?.real ?? '—', color: 'var(--green-pos)', icon: '💵' },
-            { label: 'Bonus Balance', value: balance?.bonus ?? '—', color: 'var(--purple-light)', icon: '🎁' },
-            { label: 'Total',  value: balance?.total ?? '—', color: 'var(--gold)', icon: '💰' },
+            { label: 'Real Balance', value: balance?.real ?? '—', color: 'var(--green-pos)', Icon: BanknoteIcon },
+            { label: 'Bonus Balance', value: balance?.bonus ?? '—', color: 'var(--purple-light)', Icon: GiftIcon },
+            { label: 'Total', value: balance?.total ?? '—', color: 'var(--gold)', Icon: CoinsIcon },
           ].map(b => (
             <div key={b.label} className="card" style={{ padding: '1.25rem' }}>
-              <div style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>{b.icon}</div>
+              <IconBox color={b.color}><b.Icon size={28} /></IconBox>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>{b.label}</div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: b.color }}>
                 {typeof b.value === 'number' ? `${b.value.toLocaleString()} RWF` : b.value}
@@ -89,7 +93,7 @@ export default function WalletPage() {
               color: tab === t ? 'white' : 'var(--text-secondary)',
               fontWeight: 600, fontSize: '0.88rem', transition: 'all 0.15s',
             }}>
-              {t === 'deposit' ? '⬇ Deposit' : t === 'withdraw' ? '⬆ Withdraw' : '📋 History'}
+              {t === 'deposit' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><DepositIcon size={14} /> Deposit</span> : t === 'withdraw' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><WithdrawIcon size={14} /> Withdraw</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><ClipboardIcon size={14} /> History</span>}
             </button>
           ))}
         </div>
@@ -116,7 +120,7 @@ export default function WalletPage() {
                     background: provider === p.id ? `${p.color}18` : 'var(--bg-elevated)',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', transition: 'all 0.15s',
                   }}>
-                    <span style={{ fontSize: '1.4rem' }}>{p.icon}</span>
+                    <MobileIcon size={24} color={provider === p.id ? p.color : undefined} />
                     <span style={{ fontSize: '0.75rem', fontWeight: 600, color: provider === p.id ? p.color : 'var(--text-secondary)' }}>{p.label}</span>
                   </button>
                 ))}
@@ -161,11 +165,13 @@ export default function WalletPage() {
             )}
 
             <button onClick={handleAction} disabled={loading} className={tab === 'deposit' ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', justifyContent: 'center', padding: '0.85rem', opacity: loading ? 0.7 : 1 }}>
-              {loading ? 'Processing…' : tab === 'deposit' ? '⬇ Deposit Now' : '⬆ Withdraw Now'}
+              {loading ? 'Processing…' : tab === 'deposit' ? <><DepositIcon size={16} /> Deposit Now</> : <><WithdrawIcon size={16} /> Withdraw Now</>}
             </button>
 
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.75rem' }}>
-              🔒 Secured · {tab === 'deposit' ? 'Min 500 RWF' : 'Min 1,000 RWF'} · Funds held on game join, deducted on game start
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                <LockIcon size={12} /> Secured · {tab === 'deposit' ? 'Min 500 RWF' : 'Min 1,000 RWF'} · Funds held on game join, deducted on game start
+              </span>
             </p>
           </div>
         )}
@@ -180,7 +186,7 @@ export default function WalletPage() {
                 <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: tx.type === 'DEPOSIT' || tx.type === 'GAME_PAYOUT' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>
-                      {tx.type === 'DEPOSIT' ? '⬇' : tx.type === 'GAME_PAYOUT' ? '🏆' : tx.type === 'GAME_ENTRY' ? '🎮' : '⬆'}
+                      {tx.type === 'DEPOSIT' ? <DepositIcon size={16} /> : tx.type === 'GAME_PAYOUT' ? <TrophyIcon size={16} /> : tx.type === 'GAME_ENTRY' ? <GamepadIcon size={16} /> : <WithdrawIcon size={16} />}
                     </div>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{tx.type.replace(/_/g, ' ')}</div>

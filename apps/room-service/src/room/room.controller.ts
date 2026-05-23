@@ -3,7 +3,7 @@ import {
   UseGuards, HttpCode, HttpStatus, ValidationPipe, UsePipes,
   BadRequestException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { XUserGuard } from '../guards/x-user.guard';
 import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { RoomService } from './room.service';
 import { IsString, IsNumber, IsBoolean, IsOptional, Min, Max, IsEnum } from 'class-validator';
@@ -54,7 +54,7 @@ export class RoomController {
 
   // ---- Create room ----
   @Post('rooms')
-  @UseGuards(AuthGuard('jwt'), ThrottlerGuard)
+  @UseGuards(XUserGuard, ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async createRoom(@Req() req: any, @Body() dto: CreateRoomDto) {
     return this.rooms.createRoom({
@@ -68,7 +68,7 @@ export class RoomController {
 
   // ---- Join room (funds put on hold, not deducted until game starts) ----
   @Post('rooms/:code/join')
-  @UseGuards(AuthGuard('jwt'), ThrottlerGuard)
+  @UseGuards(XUserGuard, ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   async joinRoom(
     @Param('code') code: string,
@@ -87,7 +87,7 @@ export class RoomController {
 
   // ---- Leave room (funds refunded if game not started) ----
   @Post('rooms/:code/leave')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async leaveRoom(@Param('code') code: string, @Req() req: any) {
     return this.rooms.leaveRoom(code, req.user.sub);
@@ -95,7 +95,7 @@ export class RoomController {
 
   // ---- Ready ----
   @Post('rooms/:code/ready')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async setReady(@Param('code') code: string, @Req() req: any) {
     return this.rooms.setReady(code, req.user.sub, true);
@@ -103,7 +103,7 @@ export class RoomController {
 
   // ---- Host starts game ----
   @Post('rooms/:code/start')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async startGame(@Param('code') code: string, @Req() req: any) {
     return this.rooms.startGame(code, req.user.sub);
@@ -120,14 +120,14 @@ export class RoomController {
 
   // ---- Admin ----
   @Get('admin/rooms')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async adminRooms(@Query('status') status: string, @Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');
     return this.rooms.getPublicRooms(1, 100);
   }
 
   @Post('admin/rooms/:roomId/close')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
   async adminCloseRoom(@Param('roomId') roomId: string, @Body() body: { reason: string }, @Req() req: any) {
     if (req.user.role !== 'admin') throw new BadRequestException('Forbidden');

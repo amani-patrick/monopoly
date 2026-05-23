@@ -6,10 +6,12 @@ import {
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { StaffGuard } from './guards/staff.guard';
 import { RateLimitGuard } from './guards/rate-limit.guard';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { LOCAL_SERVICE_URLS } from '@umukino/shared-types';
 
 @Controller()
 export class GatewayController {
@@ -21,11 +23,11 @@ export class GatewayController {
     private readonly config: ConfigService,
   ) {
     this.services = {
-      auth: config.get('AUTH_SERVICE_URL', 'http://auth-service:3001'),
-      game: config.get('GAME_SERVICE_URL', 'http://game-service:3002'),
-      wallet: config.get('WALLET_SERVICE_URL', 'http://wallet-service:3004'),
-      room: config.get('ROOM_SERVICE_URL', 'http://room-service:3005'),
-      leaderboard: config.get('LEADERBOARD_SERVICE_URL', 'http://leaderboard-service:3006'),
+      auth: config.get('AUTH_SERVICE_URL', LOCAL_SERVICE_URLS.auth),
+      game: config.get('GAME_SERVICE_URL', LOCAL_SERVICE_URLS.game),
+      wallet: config.get('WALLET_SERVICE_URL', LOCAL_SERVICE_URLS.wallet),
+      room: config.get('ROOM_SERVICE_URL', LOCAL_SERVICE_URLS.room),
+      leaderboard: config.get('LEADERBOARD_SERVICE_URL', LOCAL_SERVICE_URLS.leaderboard),
     };
   }
 
@@ -73,6 +75,12 @@ export class GatewayController {
   @Get('auth/google/callback')
   async googleCallback(@Query() query: any) {
     return this.proxy('auth', 'GET', `/auth/google/callback?${new URLSearchParams(query)}`);
+  }
+
+  @Post('auth/firebase')
+  @UseGuards(RateLimitGuard)
+  async firebaseAuth(@Body() body: any) {
+    return this.proxy('auth', 'POST', '/auth/firebase', body);
   }
 
   // ============================================================
@@ -260,6 +268,24 @@ export class GatewayController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   async adminSetConfig(@Body() body: any, @Req() req: any) {
     return this.proxy('game', 'POST', '/admin/config', body, req.user);
+  }
+
+  @Get('admin/review-queue')
+  @UseGuards(JwtAuthGuard, StaffGuard)
+  async adminReviewQueue(@Req() req: any) {
+    return this.proxy('game', 'GET', '/admin/review-queue', null, req.user);
+  }
+
+  @Post('admin/confirm-violation')
+  @UseGuards(JwtAuthGuard, StaffGuard)
+  async adminConfirmViolation(@Body() body: any, @Req() req: any) {
+    return this.proxy('game', 'POST', '/admin/confirm-violation', body, req.user);
+  }
+
+  @Post('admin/clear-violations')
+  @UseGuards(JwtAuthGuard, StaffGuard)
+  async adminClearViolations(@Body() body: any, @Req() req: any) {
+    return this.proxy('game', 'POST', '/admin/clear-violations', body, req.user);
   }
 
   // ============================================================

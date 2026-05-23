@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { GameEngineService } from '../game/game-engine.service';
 import { AntiCollusionService } from './anti-collusion.service';
 import { GameState, Player, TradeOffer } from '@umukino/shared-types';
@@ -38,24 +38,19 @@ export class AntiCollusionGameProxy {
     return state;
   }
 
-  async onPlayerBankrupt(state: GameState, player: Player, creditorId: string | null): Promise<void> {
-    if (!this.anticheat.isPaidLobby(state)) return;
-  }
-
-  async onGameFinished(state: GameState): Promise<void> {
-    this.anticheat.analyzePlayerPatterns(state.players[0]?.userId).catch(err => {
-      this.logger.error('Post-game forensics failed:', err);
-    });
-  }
-
   async onPlayerJoinRoom(roomId: string, userId: string, userIp: string, isPaid: boolean): Promise<void> {
     if (!isPaid) return;
+    const shadow = await this.anticheat.isInShadowPool(userId);
+    if (shadow) {
+      throw new BadRequestException('Account restricted from paid matchmaking.');
+    }
     await this.anticheat.checkCoJoinRisk(roomId, userId, userIp);
   }
 
   async getMatchmakingPool(userId: string): Promise<'shadow' | 'standard'> {
-    const inShadow = await this.anticheat.analyzePlayerPatterns(userId);
-    return inShadow.suspicious ? 'shadow' : 'standard';
+    if (await this.anticheat.isInShadowPool(userId)) return 'shadow';
+    const analysis = await this.anticheat.analyzePlayerPatterns(userId);
+    return analysis.suspicious ? 'shadow' : 'standard';
   }
 
   // Pass-through methods

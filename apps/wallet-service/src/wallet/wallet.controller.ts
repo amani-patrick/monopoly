@@ -3,7 +3,7 @@ import {
   UseGuards, HttpCode, HttpStatus, ForbiddenException,
   UsePipes, ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { XUserGuard } from '../guards/x-user.guard';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { WalletService } from './wallet.service';
 import { MtnMomoProvider } from '../providers/mtn-momo.provider';
@@ -37,26 +37,26 @@ export class WalletController {
   health() { return { status: 'ok', service: 'wallet-service', ts: new Date().toISOString() }; }
 
   @Get('wallet/balance')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async getBalance(@Req() req: any) {
     return this.wallet.getBalance(req.user.sub);
   }
 
   @Get('wallet/transactions')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async getTransactions(@Req() req: any, @Query('page') page = '1') {
     return this.wallet.getTransactions(req.user.sub, parseInt(page));
   }
 
   @Post('wallet/deposit')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async deposit(@Req() req: any, @Body() dto: DepositDto) {
     return this.wallet.initiateDeposit(req.user.sub, dto.amount, dto.provider, dto.phoneOrAddress);
   }
 
   @Post('wallet/withdraw')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   async withdraw(@Req() req: any, @Body() dto: WithdrawDto) {
     return this.wallet.initiateWithdrawal(req.user.sub, dto.amount, dto.provider, dto.phoneOrAddress);
@@ -90,7 +90,7 @@ export class WalletController {
 
   // ---- Admin ----
   @Get('admin/transactions')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(XUserGuard)
   async adminTransactions(@Req() req: any, @Query('page') page = '1') {
     if (req.user.role !== 'admin') throw new ForbiddenException('Forbidden');
     return this.wallet.getTransactions(undefined as any, parseInt(page));

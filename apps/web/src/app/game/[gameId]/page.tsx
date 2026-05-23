@@ -74,7 +74,7 @@ export default function GamePage({ params }: GamePageProps) {
     // ---- Turn events ----
     socket.on('turn.started', ({ playerId }) => {
       const isMe = playerId === currentUserId;
-      toast.info(isMe ? "🎲 It's your turn!" : 'Opponent is playing...');
+      toast.info(isMe ? "It's your turn!" : 'Opponent is playing...');
     });
 
     socket.on('turn.dice.rolled', ({ playerId, d1, d2, total }) => {
@@ -96,16 +96,16 @@ export default function GamePage({ params }: GamePageProps) {
       const toName = gameState?.players.find(p => p.userId === to)?.displayName;
       const fromName = gameState?.players.find(p => p.userId === from)?.displayName;
       if (to === currentUserId) {
-        toast.success(`💰 Collected ${amount.toLocaleString()} RWF rent from ${fromName}`);
+        toast.success(`Collected ${amount.toLocaleString()} RWF rent from ${fromName}`);
       } else if (from === currentUserId) {
-        toast.warning(`💸 Paid ${amount.toLocaleString()} RWF rent to ${toName}`);
+        toast.warning(`Paid ${amount.toLocaleString()} RWF rent to ${toName}`);
       }
     });
 
     // ---- Jail events ----
     socket.on('jail.sent', ({ playerId }) => {
       const name = gameState?.players.find(p => p.userId === playerId)?.displayName;
-      toast.warning(`🚔 ${name} was sent to Prison!`);
+      toast.warning(`${name} was sent to Prison!`);
     });
 
     // ---- Card events ----
@@ -117,14 +117,14 @@ export default function GamePage({ params }: GamePageProps) {
     socket.on('trade.initiated', ({ trade }) => {
       if (trade.toPlayerId === currentUserId) {
         useGameStore.getState().setActiveTrade(trade);
-        toast.info('📬 You have a trade offer!');
+        toast.info('You have a trade offer!');
       }
     });
 
     // ---- Auction events ----
     socket.on('auction.started', ({ auction }) => {
       useGameStore.getState().setActiveAuction(auction);
-      toast.info('🔨 Auction started!');
+      toast.info('Auction started!');
     });
 
     socket.on('auction.bid.placed', ({ playerId, amount }) => {
@@ -134,7 +134,7 @@ export default function GamePage({ params }: GamePageProps) {
 
     socket.on('auction.sold', ({ winnerId, amount }) => {
       const name = gameState?.players.find(p => p.userId === winnerId)?.displayName;
-      toast.success(`🎉 ${name} won the auction for ${amount.toLocaleString()} RWF`);
+      toast.success(`${name} won the auction for ${amount.toLocaleString()} RWF`);
       useGameStore.getState().setActiveAuction(null);
     });
 
@@ -146,18 +146,18 @@ export default function GamePage({ params }: GamePageProps) {
 
     socket.on('game.player.bankrupt', ({ playerId }) => {
       const name = gameState?.players.find(p => p.userId === playerId)?.displayName;
-      toast.error(`💀 ${name} went bankrupt!`);
+      toast.error(`${name} went bankrupt!`);
     });
 
     // ---- Player presence ----
     socket.on('game.player.disconnected', ({ playerId }) => {
       const name = gameState?.players.find(p => p.userId === playerId)?.displayName;
-      toast.warning(`⚡ ${name} disconnected`);
+      toast.warning(`${name} disconnected`);
     });
 
     socket.on('game.player.reconnected', ({ playerId }) => {
       const name = gameState?.players.find(p => p.userId === playerId)?.displayName;
-      toast.success(`✅ ${name} reconnected`);
+      toast.success(`${name} reconnected`);
     });
 
     // ---- Chat ----
@@ -166,7 +166,7 @@ export default function GamePage({ params }: GamePageProps) {
     });
 
     socket.on('chat:banned', ({ reason, until }) => {
-      toast.error(`🚫 You have been banned: ${reason}`);
+      toast.error(`You have been banned: ${reason}`);
     });
 
     // ---- Errors ----
@@ -217,7 +217,7 @@ export default function GamePage({ params }: GamePageProps) {
           <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-white text-lg">Loading game...</p>
           <p className="text-gray-400 text-sm mt-2">
-            {connected ? '✅ Connected' : '⏳ Connecting...'}
+            {connected ? 'Connected' : 'Connecting...'}
           </p>
         </div>
       </div>
@@ -229,7 +229,7 @@ export default function GamePage({ params }: GamePageProps) {
       {/* Connection indicator */}
       {!connected && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-600 text-white text-center py-2 text-sm">
-          ⚠️ Reconnecting to game server...
+          Reconnecting to game server...
         </div>
       )}
 

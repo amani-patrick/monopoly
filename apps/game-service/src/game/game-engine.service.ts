@@ -808,7 +808,7 @@ export class GameEngineService {
     to.jailFreeCards -= trade.request.jailFreeCards;
     from.jailFreeCards += trade.request.jailFreeCards;
 
-    await this.eventBus.publish(GAME_EVENTS.TRADE_COMPLETED, { gameId: state.id, trade });
+    await this.eventBus.publish(GAME_EVENTS.TRADE_COMPLETED, { gameId: state.id, trade, state });
     return state;
   }
 
@@ -849,7 +849,13 @@ export class GameEngineService {
     state.turnPhase = TurnPhase.ROLL;
     state.diceValues = null;
 
-    await this.eventBus.publish(GAME_EVENTS.TURN_ENDED, { gameId, nextPlayerId: state.players[nextIdx].id });
+    await this.eventBus.publish(GAME_EVENTS.TURN_ENDED, { gameId, nextPlayerId: state.players[nextIdx].id, state });
+    await this.eventBus.publish(GAME_EVENTS.TURN_STARTED, {
+      gameId,
+      playerId: state.players[nextIdx].id,
+      state,
+    });
+    await this.eventBus.publish(GAME_EVENTS.GAME_STATE_SYNC, { gameId, state });
     await this.saveState(state);
     return state;
   }
@@ -885,10 +891,12 @@ export class GameEngineService {
 
     this.log(state, player.id, 'Player bankrupt', { creditorId });
     // BUG 6 FIX: include creditorId so anti-collusion proxy can detect sacrifice patterns
+    await this.saveState(state);
     await this.eventBus.publish(GAME_EVENTS.GAME_PLAYER_BANKRUPT, {
       gameId: state.id,
       playerId: player.id,
       creditorId: creditorId ?? null,
+      state,
     });
 
     return state;

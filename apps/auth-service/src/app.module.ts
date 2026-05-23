@@ -7,7 +7,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { FirebaseAuthService } from './auth/firebase-auth.service';
+import { XUserGuard } from './auth/guards/x-user.guard';
 import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { UserEntity } from './auth/entities/user.entity';
 
@@ -39,16 +40,16 @@ import { UserEntity } from './auth/entities/user.entity';
       }),
     }),
 
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({}),
 
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
-        config: { url: cfg.get('REDIS_URL', 'redis://localhost:6379') },
+        config: { url: cfg.get('REDIS_URL', 'redis://127.0.0.1:6379') },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, FirebaseAuthService, GoogleStrategy, XUserGuard],
 })
 export class AppModule {}

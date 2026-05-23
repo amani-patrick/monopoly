@@ -48,6 +48,9 @@ class ApiClient {
   login(email: string, password: string) {
     return this.http.post('/auth/login', { email, password });
   }
+  loginWithGoogle(idToken: string) {
+    return this.http.post('/auth/firebase', { idToken });
+  }
   logout(refreshToken: string) {
     return this.http.post('/auth/logout', { refreshToken });
   }
@@ -76,6 +79,15 @@ class ApiClient {
 
   // ---- Game ----
   getGame(gameId: string){ return this.http.get(`/games/${gameId}`); }
+
+  // ---- Admin ----
+  adminGet(path: string, params?: Record<string, string>) {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return this.http.get(`/admin/${path}${qs}`);
+  }
+  adminPost(path: string, body?: unknown) {
+    return this.http.post(`/admin/${path}`, body ?? {});
+  }
 }
 
 export const api = new ApiClient();

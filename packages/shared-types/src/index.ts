@@ -1,3 +1,5 @@
+export * from './dev-urls';
+
 // --- Enums ---
 
 export enum PlayerStatus {
@@ -334,10 +336,13 @@ export interface WsEvent<T = unknown> {
 
 // --- Auth ---
 
+export type UserRole = 'player' | 'admin' | 'moderator';
+
 export interface JwtPayload {
   sub: string;
   email: string;
   displayName: string;
+  role: UserRole;
   iat?: number;
   exp?: number;
 }

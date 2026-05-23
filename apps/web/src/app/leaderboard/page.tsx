@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { api } from '@/lib/api';
+import { TrophyIcon, ChartIcon, MedalIcon, FlameIcon, IconBox } from '@/components/layout/Icons';
 
 const TABS = ['wins','winrate'] as const;
 
@@ -28,7 +29,7 @@ export default function LeaderboardPage() {
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🏆</div>
+          <IconBox size="3rem" color="var(--gold)"><TrophyIcon size={48} /></IconBox>
           <h1 style={{ fontSize: '2rem', fontWeight: 900 }}>Leaderboard</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: '0.4rem' }}>Top players on Umukino</p>
         </div>
@@ -42,7 +43,7 @@ export default function LeaderboardPage() {
                 background: tab === t ? 'var(--purple-primary)' : 'var(--bg-elevated)',
                 color: tab === t ? 'white' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem',
               }}>
-                {t === 'wins' ? '🏆 Most Wins' : '📊 Win Rate'}
+                {t === 'wins' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><TrophyIcon size={14} /> Most Wins</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><ChartIcon size={14} /> Win Rate</span>}
               </button>
             ))}
           </div>
@@ -55,10 +56,10 @@ export default function LeaderboardPage() {
             {[filtered[1], filtered[0], filtered[2]].map((p, i) => {
               const rank = i === 1 ? 1 : i === 0 ? 2 : 3;
               const heights = [80, 100, 60];
-              const medals = ['🥈','🥇','🥉'];
+              const podiumColors = ['#9ca3af', 'var(--gold)', '#b45309'];
               return (
                 <div key={p?.userId} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{ fontSize: '1.5rem' }}>{medals[i]}</div>
+                  <MedalIcon size={28} color={podiumColors[i]} />
                   <div className={`avatar avatar-${p?.avatar || 'purple'}`} style={{ width: 48, height: 48, fontSize: '1.1rem' }}>
                     {p?.displayName?.[0]?.toUpperCase() || '?'}
                   </div>
@@ -94,7 +95,7 @@ export default function LeaderboardPage() {
               >
                 {/* Rank */}
                 <div style={{ width: 28, textAlign: 'center', fontWeight: 800, color: i < 3 ? ['var(--gold)','#9ca3af','#b45309'][i] : 'var(--text-muted)', fontSize: i < 3 ? '1rem' : '0.9rem' }}>
-                  {i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}
+                  {i < 3 ? <MedalIcon size={18} color={['var(--gold)','#9ca3af','#b45309'][i]} /> : i + 1}
                 </div>
                 {/* Avatar */}
                 <div className={`avatar avatar-${p.avatar || 'green'}`} style={{ width: 36, height: 36, fontSize: '0.85rem', flexShrink: 0 }}>
@@ -119,7 +120,7 @@ export default function LeaderboardPage() {
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, color: 'var(--green-pos)', fontSize: '0.88rem' }}>
-                      {p.currentWinStreak > 0 ? `🔥${p.currentWinStreak}` : '—'}
+                      {p.currentWinStreak > 0 ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><FlameIcon size={14} />{p.currentWinStreak}</span> : '—'}
                     </div>
                     <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Streak</div>
                   </div>

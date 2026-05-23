@@ -10,9 +10,11 @@ import { HttpModule } from '@nestjs/axios';
 
 import { GameController } from './game/game.controller';
 import { GameActionsController } from './game/game-actions.controller';
+import { InternalBotController } from './game/internal-bot.controller';
 import { GameEngineService } from './game/game-engine.service';
 import { AntiCollusionService } from './anti-collusion/anti-collusion.service';
 import { AntiCollusionGameProxy } from './anti-collusion/anti-collusion.proxy';
+import { AntiCollusionListener } from './anti-collusion/anti-collusion.listener';
 import { ChatService } from './chat/chat.service';
 import { AdminService } from './admin/admin.service';
 import { AdminController } from './admin/admin.controller';
@@ -22,7 +24,9 @@ import { RedisService } from './redis/redis.service';
 import { GameRecord } from './game/entities/game.entity';
 import { ChatMessage } from './chat/entities/chat-message.entity';
 import { UserBan } from './chat/entities/user-ban.entity';
-import { JwtStrategy } from './guards/jwt.strategy';
+import { XUserGuard } from './guards/x-user.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { BotInternalGuard } from './guards/bot-internal.guard';
 
 // Mongoose schemas
 import { SuspicionRecord, SuspicionRecordSchema } from './anti-collusion/schemas/suspicion-record.schema';
@@ -54,27 +58,25 @@ import { SuspicionRecord, SuspicionRecordSchema } from './anti-collusion/schemas
       { name: SuspicionRecord.name, schema: SuspicionRecordSchema },
     ]),
 
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (cfg: ConfigService) => ({ secret: cfg.get('JWT_ACCESS_SECRET') }),
-    }),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
 
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({ config: { url: cfg.get('REDIS_URL') } }),
     }),
   ],
-  controllers: [GameController, GameActionsController, AdminController],
+  controllers: [GameController, GameActionsController, AdminController, InternalBotController],
   providers: [
     GameEngineService,
     AntiCollusionService,
     AntiCollusionGameProxy,
+    AntiCollusionListener,
     ChatService,
     AdminService,
     EventBusService,
     RedisService,
-    JwtStrategy,
+    XUserGuard,
+    RolesGuard,
+    BotInternalGuard,
   ],
   exports: [GameEngineService, AntiCollusionGameProxy, ChatService, EventBusService],
 })

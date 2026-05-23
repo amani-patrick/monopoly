@@ -1,9 +1,15 @@
 'use client';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { useAuth } from '@/hooks/useAuth';
 import { api, getErrorMsg } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import type { IconProps } from '@/components/layout/Icons';
+import {
+  ChartIcon, UsersIcon, DiceIcon, CoinsIcon, ShieldIcon, SparklesIcon,
+  GamepadIcon, OnlineIcon, BanknoteIcon, RefreshIcon, BanIcon, CheckIcon,
+  AlertIcon, IconBox,
+} from '@/components/layout/Icons';
 
 type AdminTab = 'dashboard' | 'users' | 'games' | 'revenue' | 'anticheat';
 
@@ -83,12 +89,12 @@ export default function AdminPage() {
 
   if (authLoading || !user || user.role !== 'admin') return null;
 
-  const NAV_TABS: { key: AdminTab; label: string; icon: string }[] = [
-    { key: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { key: 'users',     label: 'Users',     icon: '👥' },
-    { key: 'games',     label: 'Games',     icon: '🎲' },
-    { key: 'revenue',   label: 'Revenue',   icon: '💰' },
-    { key: 'anticheat', label: 'Anti-Cheat',icon: '🛡️' },
+  const NAV_TABS: { key: AdminTab; label: string; Icon: React.ComponentType<IconProps> }[] = [
+    { key: 'dashboard', label: 'Dashboard', Icon: ChartIcon },
+    { key: 'users',     label: 'Users',     Icon: UsersIcon },
+    { key: 'games',     label: 'Games',     Icon: DiceIcon },
+    { key: 'revenue',   label: 'Revenue',   Icon: CoinsIcon },
+    { key: 'anticheat', label: 'Anti-Cheat', Icon: ShieldIcon },
   ];
 
   return (
@@ -110,7 +116,7 @@ export default function AdminPage() {
                 transition: 'all 0.15s', textAlign: 'left', marginBottom: '2px',
                 borderLeft: `3px solid ${tab === t.key ? 'var(--purple-primary)' : 'transparent'}`,
               }}>
-                <span>{t.icon}</span> {t.label}
+                <t.Icon size={16} /> {t.label}
               </button>
             ))}
           </div>
@@ -127,18 +133,18 @@ export default function AdminPage() {
           {/* ── DASHBOARD ── */}
           {tab === 'dashboard' && (
             <>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem' }}>📊 Dashboard</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><ChartIcon size={22} /> Dashboard</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 {[
-                  { label: 'Total Users',    value: dash?.users?.total ?? '—',   icon: '👥', color: 'var(--purple-light)' },
-                  { label: 'New Today',      value: dash?.users?.newToday ?? '—',icon: '🆕', color: 'var(--green-pos)' },
-                  { label: 'Active Games',   value: dash?.activeNow?.games ?? '—',icon: '🎮', color: 'var(--gold)' },
-                  { label: 'Online Players', value: dash?.activeNow?.players ?? '—',icon: '🟢', color: 'var(--green-pos)' },
-                  { label: "Today's Revenue",value: dash?.revenue?.today ? `${Number(dash.revenue.today).toLocaleString()} RWF` : '—', icon: '💵', color: 'var(--gold)' },
-                  { label: 'Total Revenue',  value: dash?.revenue?.total ? `${Number(dash.revenue.total).toLocaleString()} RWF` : '—', icon: '💰', color: 'var(--gold)' },
+                  { label: 'Total Users', value: dash?.users?.total ?? '—', Icon: UsersIcon, color: 'var(--purple-light)' },
+                  { label: 'New Today', value: dash?.users?.newToday ?? '—', Icon: SparklesIcon, color: 'var(--green-pos)' },
+                  { label: 'Active Games', value: dash?.activeNow?.games ?? '—', Icon: GamepadIcon, color: 'var(--gold)' },
+                  { label: 'Online Players', value: dash?.activeNow?.players ?? '—', Icon: OnlineIcon, color: 'var(--green-pos)' },
+                  { label: "Today's Revenue", value: dash?.revenue?.today ? `${Number(dash.revenue.today).toLocaleString()} RWF` : '—', Icon: BanknoteIcon, color: 'var(--gold)' },
+                  { label: 'Total Revenue', value: dash?.revenue?.total ? `${Number(dash.revenue.total).toLocaleString()} RWF` : '—', Icon: CoinsIcon, color: 'var(--gold)' },
                 ].map(s => (
                   <div key={s.label} className="card" style={{ padding: '1.25rem' }}>
-                    <div style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>{s.icon}</div>
+                    <IconBox color={s.color}><s.Icon size={26} /></IconBox>
                     <div style={{ fontSize: '1.5rem', fontWeight: 800, color: s.color }}>{s.value}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{s.label}</div>
                   </div>
@@ -146,7 +152,7 @@ export default function AdminPage() {
               </div>
               {!dash && (
                 <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔄</div>
+                  <div style={{ marginBottom: '0.5rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'center' }}><RefreshIcon size={32} /></div>
                   <p>Connect to backend to see live stats</p>
                   <button onClick={() => loadTab('dashboard')} className="btn-secondary" style={{ marginTop: '1rem' }}>Retry</button>
                 </div>
@@ -158,7 +164,7 @@ export default function AdminPage() {
           {tab === 'users' && (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>👥 Users</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}><UsersIcon size={22} /> Users</h2>
                 <input className="input" placeholder="Search by name or email…" style={{ width: '250px' }} value={search} onChange={e => setSearch(e.target.value)} />
               </div>
               <div className="card" style={{ overflow: 'hidden' }}>
@@ -180,7 +186,7 @@ export default function AdminPage() {
                       {u.role === 'admin' ? <span className="tag-pro">ADMIN</span> : <span style={{ color: 'var(--text-muted)' }}>player</span>}
                     </span>
                     <span style={{ fontSize: '0.78rem', color: u.isBanned ? 'var(--red-neg)' : 'var(--green-pos)' }}>
-                      {u.isBanned ? '🚫 Banned' : '✓ Active'}
+                      {u.isBanned ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><BanIcon size={12} /> Banned</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CheckIcon size={12} /> Active</span>}
                     </span>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       {u.isBanned
@@ -198,8 +204,8 @@ export default function AdminPage() {
           {tab === 'games' && (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>🎲 Active Games</h2>
-                <button onClick={() => loadTab('games')} className="btn-secondary" style={{ fontSize: '0.82rem' }}>🔄 Refresh</button>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}><DiceIcon size={22} /> Active Games</h2>
+                <button onClick={() => loadTab('games')} className="btn-secondary" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}><RefreshIcon size={14} /> Refresh</button>
               </div>
               {loading ? <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Loading…</div> : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -232,7 +238,7 @@ export default function AdminPage() {
           {/* ── REVENUE ── */}
           {tab === 'revenue' && (
             <>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem' }}>💰 Revenue</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><CoinsIcon size={22} /> Revenue</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '2rem' }}>
                 {[
                   { label: "Today's Cut",    value: dash?.revenue?.today,     color: 'var(--green-pos)' },
@@ -265,12 +271,12 @@ export default function AdminPage() {
           {/* ── ANTI-CHEAT ── */}
           {tab === 'anticheat' && (
             <>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem' }}>🛡️ Anti-Cheat Review Queue</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><ShieldIcon size={22} /> Anti-Cheat Review Queue</h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.87rem', marginBottom: '1.5rem' }}>Players flagged by the anti-collusion engine for manual review.</p>
               {loading ? <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Loading…</div> : (
                 queue.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✅</div>
+                    <div style={{ marginBottom: '0.75rem', color: 'var(--green-pos)', display: 'flex', justifyContent: 'center' }}><CheckIcon size={40} /></div>
                     <div style={{ fontWeight: 600 }}>Queue is clear</div>
                     <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>No players flagged for review.</div>
                   </div>
@@ -281,7 +287,7 @@ export default function AdminPage() {
                       return (
                         <div key={entry} className="card" style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--red-neg)' }}>⚠️ Flagged player pair</div>
+                            <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--red-neg)', display: 'flex', alignItems: 'center', gap: '6px' }}><AlertIcon size={14} /> Flagged player pair</div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px', fontFamily: 'monospace' }}>{uid1}{uid2 ? ` ↔ ${uid2}` : ''}</div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>

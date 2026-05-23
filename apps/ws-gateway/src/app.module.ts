@@ -20,7 +20,7 @@ import { GameGateway } from './game.gateway';
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
-        config: { url: cfg.get('REDIS_URL', 'redis://localhost:6379') },
+        config: { url: cfg.get('REDIS_URL', 'redis://127.0.0.1:6379') },
       }),
     }),
 

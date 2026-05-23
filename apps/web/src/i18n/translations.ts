@@ -15,10 +15,10 @@ export const translations = {
     'game.use_card': 'Use Jail-Free Card',
     'game.bankrupt': 'BANKRUPT',
     'game.in_jail': 'In Prison',
-    'game.winner': '🏆 Winner!',
+    'game.winner': 'Winner!',
     'game.passed_start': 'Passed Start! +{amount} RWF',
-    'game.sent_to_jail': '🚔 Go to Prison!',
-    'game.vacation_collected': '🏖️ Vacation Pool: +{amount} RWF',
+    'game.sent_to_jail': 'Go to Prison!',
+    'game.vacation_collected': 'Vacation Pool: +{amount} RWF',
 
     // Board spaces
     'space.start': 'Start',
@@ -119,10 +119,10 @@ export const translations = {
     'game.use_card': 'Koresha Karita y\'Ubusuzi',
     'game.bankrupt': 'GUPFUSHA',
     'game.in_jail': 'Mu Gereza',
-    'game.winner': '🏆 Utsindiye!',
+    'game.winner': 'Utsindiye!',
     'game.passed_start': 'Wanyuze ku ntangiriro! +{amount} RWF',
-    'game.sent_to_jail': '🚔 Jya mu Gereza!',
-    'game.vacation_collected': '🏖️ Ubutunzi bw\'Ikiruhuko: +{amount} RWF',
+    'game.sent_to_jail': 'Jya mu Gereza!',
+    'game.vacation_collected': 'Ubutunzi bw\'Ikiruhuko: +{amount} RWF',
 
     // Board spaces
     'space.start': 'Tangira',
