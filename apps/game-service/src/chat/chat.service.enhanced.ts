@@ -536,7 +536,7 @@ export class ChatServiceEnhanced implements OnModuleInit, OnModuleDestroy {
    */
   async editMessage(messageId: string, userId: string, newText: string): Promise<RichMessage | null> {
     try {
-      const msg = await this.msgRepo.findOne({ where: { id: parseInt(messageId) } });
+      const msg = await this.msgRepo.findOne({ where: { id: messageId } });
       if (!msg || msg.userId !== userId) {
         return null;
       }
@@ -582,7 +582,7 @@ export class ChatServiceEnhanced implements OnModuleInit, OnModuleDestroy {
    */
   async deleteMessage(messageId: string, userId: string): Promise<boolean> {
     try {
-      const msg = await this.msgRepo.findOne({ where: { id: parseInt(messageId) } });
+      const msg = await this.msgRepo.findOne({ where: { id: messageId } });
       if (!msg || msg.userId !== userId) {
         return false;
       }
@@ -678,7 +678,7 @@ export class ChatServiceEnhanced implements OnModuleInit, OnModuleDestroy {
     // Add message to spam history
     await this.redis.lpush(key, text);
     await this.redis.ltrim(key, 0, SPAM_THRESHOLD - 1);
-    await this.redis.expire(key, 60); // 1 minute window
+    await this.redis.expire(key, 60); 
 
     return false;
   }

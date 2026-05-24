@@ -125,7 +125,7 @@ export class RoomService {
 
     const dbRoom = await this.roomRepo.findOneOrFail({ where: { id: room.id } });
     const minP = (room.settings as any).minPlayers || 2;
-    const maxP = room.settings?.maxPlayers || room.maxPlayers || 4;
+    const maxP = room.settings?.maxPlayers || 4;
 
     if (room.settings?.allowBots) {
       const botNames = ['Kigali Bot', 'Butare AI', 'Gisenyi CPU', 'Musanze Prime', 'Rubavu Ace', 'Huye Hawk', 'Nyagatare X'];

@@ -192,6 +192,7 @@ export interface Trade {
   offer: TradeOffer;
   request: TradeOffer;
   status: TradeStatus;
+  message?: string;
   createdAt: string;
   expiresAt: string;
 }
@@ -234,7 +235,7 @@ export interface GameSettings {
   doubleRentFullSet: boolean;
   vacationCash: boolean; 
   auctionEnabled: boolean;
-  EvenBuild:boolean; // if true, must build evenly across properties in a color group
+  EvenBuild?: boolean; // if true, must build evenly across properties in a color group
   noRentInJail: boolean;
   startingBalance: number;  // default 150000 RWF (in-game money only)
   passStartBonus: number;   // default 20000 RWF

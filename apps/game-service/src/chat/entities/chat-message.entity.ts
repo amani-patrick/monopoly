@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('chat_messages')
 export class ChatMessage {
@@ -11,6 +11,7 @@ export class ChatMessage {
   @Column({ nullable: true, name: 'game_id' }) gameId?: string;
   @Column({ default: false, name: 'had_violation' }) hadViolation: boolean;
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' }) createdAt: Date;
+  @UpdateDateColumn({ type: 'timestamptz', name: 'edited_at', nullable: true }) editedAt?: Date;
 }
 
 @Entity('user_bans')

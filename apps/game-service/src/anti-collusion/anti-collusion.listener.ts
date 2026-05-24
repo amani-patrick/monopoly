@@ -16,7 +16,7 @@ export class AntiCollusionListener implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    this.subscriber = new Redis(this.config.get('REDIS_URL', 'redis://127.0.0.1:6379'));
+    this.subscriber = new Redis(this.config.get<string>('REDIS_URL') ?? 'redis://127.0.0.1:6379');
     await this.subscriber.subscribe(REDIS_CHANNELS.GAME_EVENTS);
     this.subscriber.on('message', (_channel, raw) => this.handleMessage(raw));
     this.logger.log('Anti-collusion event listener active');
