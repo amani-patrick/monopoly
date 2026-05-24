@@ -1,7 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
-import { api } from '@/lib/api';
+import { api, getErrorMsg } from '@/lib/api';
+import { toast } from '@/components/ui/Toaster';
 import { TrophyIcon, ChartIcon, MedalIcon, FlameIcon, IconBox } from '@/components/layout/Icons';
 
 const TABS = ['wins','winrate'] as const;
@@ -11,16 +12,38 @@ export default function LeaderboardPage() {
   const [data, setData]       = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
+  const [error, setError]     = useState('');
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
+    setError('');
+
     api.getLeaderboard(tab)
-      .then(({ data }) => setData(data || []))
-      .catch(() => setData(MOCK_LB))
-      .finally(() => setLoading(false));
+      .then(({ data }) => {
+        if (!active) return;
+        setData(Array.isArray(data) ? data : []);
+        setLastUpdated(new Date());
+      })
+      .catch((err) => {
+        if (!active) return;
+        const message = getErrorMsg(err);
+        setError(message);
+        setData([]);
+        toast.error(message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => { active = false; };
   }, [tab]);
 
-  const filtered = data.filter(p => !search || p.displayName?.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(
+    () => data.filter(p => !search || p.displayName?.toLowerCase().includes(search.toLowerCase())),
+    [data, search],
+  );
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>
@@ -49,6 +72,18 @@ export default function LeaderboardPage() {
           </div>
           <input className="input" placeholder="Search player…" value={search} onChange={e => setSearch(e.target.value)} style={{ width: '200px' }} />
         </div>
+
+        {/* Refresh info */}
+        {lastUpdated && !loading && !error && (
+          <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
+              Leaderboard updates automatically after each finished game.
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
+              Last refreshed {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        )}
 
         {/* Top 3 podium */}
         {!loading && filtered.length >= 3 && !search && (
@@ -81,9 +116,35 @@ export default function LeaderboardPage() {
         {/* Table */}
         <div className="card" style={{ overflow: 'hidden' }}>
           {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading…</div>
+            <div style={{ padding: '1.5rem' }}>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} style={{
+                  display: 'grid',
+                  gridTemplateColumns: '40px 40px 1fr 120px',
+                  gap: '1rem',
+                  padding: '1rem',
+                  borderBottom: index < 4 ? '1px solid var(--border)' : 'none',
+                  opacity: 0.55,
+                }}>
+                  <div className="skeleton" style={{ height: 18, width: 24, borderRadius: 8 }} />
+                  <div className="skeleton" style={{ height: 36, width: 36, borderRadius: '50%' }} />
+                  <div>
+                    <div className="skeleton" style={{ height: 18, width: '70%', borderRadius: 8, marginBottom: 8 }} />
+                    <div className="skeleton" style={{ height: 14, width: '45%', borderRadius: 8 }} />
+                  </div>
+                  <div className="skeleton" style={{ height: 24, width: '100%', borderRadius: 8 }} />
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-danger)' }}>
+              <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Unable to load leaderboards</div>
+              <div>{error}</div>
+            </div>
           ) : filtered.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No players found.</div>
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              {search ? 'No players match that name.' : 'No leaderboard data is available yet.'}
+            </div>
           ) : (
             filtered.map((p: any, i: number) => (
               <div key={p.userId || i} style={{

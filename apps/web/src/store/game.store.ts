@@ -22,6 +22,9 @@ interface GameStore {
   gameOver: boolean;
 
   // UI state
+  loading: boolean;
+  statusMessage: string | null;
+  errorMessage: string | null;
   pendingCard: GameCard | null;
   activeTrade: Trade | null;
   activeAuction: Auction | null;
@@ -32,6 +35,11 @@ interface GameStore {
   chatMessages: ChatMessage[];
 
   // Actions
+  setLoading: (loading: boolean) => void;
+  setStatusMessage: (message: string | null) => void;
+  setErrorMessage: (message: string | null) => void;
+  clearStatus: () => void;
+  clearError: () => void;
   setGameState: (state: GameState) => void;
   setConnected: (connected: boolean) => void;
   setGameOver: (over: boolean) => void;
@@ -53,6 +61,9 @@ const initialState = {
   gameState: null,
   connected: false,
   gameOver: false,
+  loading: false,
+  statusMessage: null,
+  errorMessage: null,
   pendingCard: null,
   activeTrade: null,
   activeAuction: null,
@@ -89,6 +100,12 @@ export const useGameStore = create<GameStore>()(
         setActiveAuction: (activeAuction) => set({ activeAuction }),
 
         setSelectedSpace: (selectedSpaceIndex) => set({ selectedSpaceIndex }),
+
+        setLoading: (loading) => set({ loading }),
+        setStatusMessage: (statusMessage) => set({ statusMessage }),
+        setErrorMessage: (errorMessage) => set({ errorMessage }),
+        clearStatus: () => set({ statusMessage: null }),
+        clearError: () => set({ errorMessage: null }),
 
         addChatMessage: (msg) => set((state) => ({
           chatMessages: [...state.chatMessages.slice(-99), msg], // keep last 100

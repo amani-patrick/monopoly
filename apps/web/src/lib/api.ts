@@ -95,7 +95,16 @@ export const api = new ApiClient();
 // Error helper
 export function getErrorMsg(err: unknown): string {
   if (axios.isAxiosError(err)) {
-    return err.response?.data?.message || err.message || 'Something went wrong';
+    if (!err.response) {
+      return 'Network unavailable. Please check your connection and try again.';
+    }
+
+    const payload = err.response.data as any;
+    if (payload?.message) return payload.message;
+    if (Array.isArray(payload?.errors)) {
+      return payload.errors.map((error: any) => error?.message || error).join('; ');
+    }
+    return err.message || 'Something went wrong';
   }
   return 'Something went wrong';
 }
