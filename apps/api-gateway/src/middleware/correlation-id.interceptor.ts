@@ -48,10 +48,10 @@ export class CorrelationIdInterceptor implements NestInterceptor {
           );
           response.setHeader('x-response-time', `${duration}ms`);
         },
-        error: (error) => {
+        error: (error: any) => {
           const duration = Date.now() - startTime;
           this.logger.error(
-            `[${correlationId}] ${request.method} ${request.path} ERROR (${duration}ms): ${error.message}`,
+            `[${correlationId}] ${request.method} ${request.path} ERROR (${duration}ms): ${error?.message || error}`,
           );
           response.setHeader('x-response-time', `${duration}ms`);
         },
@@ -140,13 +140,13 @@ export class ServiceClient {
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         throw new Error(
-          `Service call failed: ${response.status} ${error.message || response.statusText}`,
+          `Service call failed: ${response.status} ${((error as any)?.message) || response.statusText}`,
         );
       }
 
-      const data = await response.json();
+      const data: any = await response.json().catch(() => ({}));
       this.logger.debug(`[${correlationId}] Service call succeeded`);
-      return data;
+      return data as T;
     } catch (error: any) {
       const isRetryable = error.name === 'AbortError' || error.message?.includes('ECONNREFUSED');
 

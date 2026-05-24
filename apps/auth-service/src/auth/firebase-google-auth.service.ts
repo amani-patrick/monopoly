@@ -119,9 +119,9 @@ export class FirebaseGoogleAuthService {
         // First-time user - create account
         user = await this.createGoogleUser(uid, email, name, picture);
         this.logger.log(`New Google user created: ${user.id} (${email})`);
-      } else if (!user.googleUserId) {
+      } else if (!user.googleId) {
         // Existing user - link Google account
-        user.googleUserId = uid;
+        user.googleId = uid;
         user.avatar = picture || user.avatar;
         user.isVerified = true;
         await this.userRepo.save(user);
@@ -230,20 +230,20 @@ export class FirebaseGoogleAuthService {
 
       const user = await this.userRepo.findOneOrFail({ where: { id: userId } });
 
-      if (user.googleUserId) {
+      if (user.googleId) {
         throw new ConflictException('Google account already linked to this user');
       }
 
       // Check if Google account is already linked to another user
       const existingLink = await this.userRepo.findOne({
-        where: { googleUserId: decodedToken.uid },
+        where: { googleId: decodedToken.uid },
       });
 
       if (existingLink && existingLink.id !== userId) {
         throw new ConflictException('This Google account is already linked to another user');
       }
 
-      user.googleUserId = decodedToken.uid;
+      user.googleId = decodedToken.uid;
       user.isVerified = true;
       if (decodedToken.picture) {
         user.avatar = decodedToken.picture;
@@ -264,11 +264,11 @@ export class FirebaseGoogleAuthService {
   async unlinkGoogleAccount(userId: string): Promise<void> {
     const user = await this.userRepo.findOneOrFail({ where: { id: userId } });
 
-    if (!user.googleUserId) {
+    if (!user.googleId) {
       throw new BadRequestException('Google account not linked to this user');
     }
 
-    user.googleUserId = null;
+    user.googleId = null;
     await this.userRepo.save(user);
 
     this.logger.log(`Google account unlinked from user ${userId}`);
@@ -287,7 +287,7 @@ export class FirebaseGoogleAuthService {
    * Create new user from Google account
    */
   private async createGoogleUser(
-    googleUserId: string,
+    googleId: string,
     email: string,
     name?: string,
     picture?: string,
@@ -295,7 +295,7 @@ export class FirebaseGoogleAuthService {
     const user = new UserEntity();
     user.id = uuid();
     user.email = email.toLowerCase();
-    user.googleUserId = googleUserId;
+    user.googleId = googleId;
     user.displayName = name?.trim().slice(0, 50) || email.split('@')[0];
     user.avatar = picture || this.getDefaultAvatar();
     user.role = 'player';
@@ -314,7 +314,8 @@ export class FirebaseGoogleAuthService {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
-      role: user.role,
+      displayName: user.displayName,
+      role: (user.role as any),
     };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -327,7 +328,7 @@ export class FirebaseGoogleAuthService {
       secret: this.config.get('JWT_REFRESH_SECRET'),
     });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, expiresIn: this.ACCESS_TOKEN_TTL_MINUTES * 60 };
   }
 
   /**

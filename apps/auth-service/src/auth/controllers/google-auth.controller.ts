@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { FirebaseGoogleAuthService } from './firebase-google-auth.service';
+import { FirebaseGoogleAuthService } from '../firebase-google-auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { AuthTokens } from '@umukino/shared-types';
 

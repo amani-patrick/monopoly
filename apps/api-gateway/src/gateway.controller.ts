@@ -1,7 +1,7 @@
 import {
   Controller, All, Req, Res, Param, UseGuards,
   Get, Post, Put, Delete, Body, Query,
-  HttpException, HttpStatus,Http, Logger,
+  HttpException, HttpStatus, Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';

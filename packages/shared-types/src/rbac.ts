@@ -70,51 +70,50 @@ interface RolePermissions {
 /**
  * Default role permission mappings
  */
+const PLAYER_PERMS: Permission[] = [
+  Permission.GAME_CREATE,
+  Permission.GAME_JOIN,
+  Permission.GAME_PLAY,
+  Permission.GAME_SPECTATE,
+  Permission.USER_READ,
+  Permission.USER_UPDATE,
+  Permission.WALLET_READ,
+  Permission.LEADERBOARD_READ,
+  Permission.ROOM_CREATE,
+];
+
+const MODERATOR_PERMS: Permission[] = [
+  ...PLAYER_PERMS,
+  Permission.CHAT_MODERATE,
+  Permission.REPORT_HANDLE,
+  Permission.USER_BAN,
+  Permission.ANTICHEAT_REVIEW,
+  Permission.AUDIT_LOG_READ,
+];
+
+const ADMIN_PERMS: Permission[] = [
+  ...MODERATOR_PERMS,
+  Permission.USER_DELETE,
+  Permission.USER_UNBAN,
+  Permission.ANTICHEAT_BAN,
+  Permission.ANTICHEAT_UNBAN,
+  Permission.WALLET_MANAGE,
+  Permission.TRANSACTION_REFUND,
+  Permission.REPORT_ESCALATE,
+  Permission.CONFIG_READ,
+  Permission.CONFIG_UPDATE,
+  Permission.CONTENT_CREATE,
+  Permission.CONTENT_EDIT,
+  Permission.CONTENT_DELETE,
+  Permission.ROOM_MANAGE,
+  Permission.LEADERBOARD_MANAGE,
+];
+
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
-  [UserRole.PLAYER]: [
-    Permission.GAME_CREATE,
-    Permission.GAME_JOIN,
-    Permission.GAME_PLAY,
-    Permission.GAME_SPECTATE,
-    Permission.USER_READ,
-    Permission.USER_UPDATE,
-    Permission.WALLET_READ,
-    Permission.LEADERBOARD_READ,
-    Permission.ROOM_CREATE,
-  ],
-
-  [UserRole.MODERATOR]: [
-    ...ROLE_PERMISSIONS[UserRole.PLAYER] || [],
-    Permission.CHAT_MODERATE,
-    Permission.REPORT_HANDLE,
-    Permission.USER_BAN,
-    Permission.ANTICHEAT_REVIEW,
-    Permission.USER_READ,
-    Permission.AUDIT_LOG_READ,
-  ],
-
-  [UserRole.ADMIN]: [
-    ...ROLE_PERMISSIONS[UserRole.MODERATOR] || [],
-    Permission.USER_DELETE,
-    Permission.USER_UNBAN,
-    Permission.ANTICHEAT_BAN,
-    Permission.ANTICHEAT_UNBAN,
-    Permission.WALLET_MANAGE,
-    Permission.TRANSACTION_REFUND,
-    Permission.REPORT_ESCALATE,
-    Permission.CONFIG_READ,
-    Permission.CONFIG_UPDATE,
-    Permission.CONTENT_CREATE,
-    Permission.CONTENT_EDIT,
-    Permission.CONTENT_DELETE,
-    Permission.ROOM_MANAGE,
-    Permission.LEADERBOARD_MANAGE,
-  ],
-
-  [UserRole.SUPER_ADMIN]: [
-    // Super admin has all permissions
-    ...Object.values(Permission),
-  ],
+  [UserRole.PLAYER]: PLAYER_PERMS,
+  [UserRole.MODERATOR]: MODERATOR_PERMS,
+  [UserRole.ADMIN]: ADMIN_PERMS,
+  [UserRole.SUPER_ADMIN]: [...Object.values(Permission)],
 };
 
 /**

@@ -38,10 +38,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     // Handle API Errors
     if (exception instanceof ApiError) {
-      statusCode = exception.statusCode;
-      code = exception.code;
-      message = exception.message;
-      details = exception.details;
+      statusCode = (exception as any).statusCode;
+      code = (exception as any).code;
+      message = (exception as any).message;
+      details = (exception as any).details;
     }
     // Handle NestJS HTTP exceptions
     else if (exception instanceof Error && (exception as any).status) {
