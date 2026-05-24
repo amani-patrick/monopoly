@@ -70,5 +70,5 @@ export function useAuth() {
     window.location.href = '/';
   };
 
-  return { user, loading, login, register, logout, isAdmin: user?.role === 'admin' };
+  return { user, loading, login, register, loginWithGoogle, logout, isAdmin: user?.role === 'admin' };
 }
