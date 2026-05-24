@@ -332,14 +332,19 @@ export class FirebaseGoogleAuthService {
   }
 
   /**
-   * Store refresh token metadata in Redis
+   * Store refresh token session metadata in Redis.
+   * We store a hash of the idToken (not the token itself) to avoid
+   * storing a live bearer credential in Redis.
    */
   private async storeRefreshTokenMetadata(userId: string, idToken: string): Promise<void> {
     const sessionKey = `user:${userId}:google_session`;
+    // Hash the token so a Redis compromise doesn't expose a live Google credential
+    const crypto = await import('crypto');
+    const tokenHash = crypto.createHash('sha256').update(idToken).digest('hex');
     await this.redis.set(
       sessionKey,
       JSON.stringify({
-        idToken,
+        tokenHash,
         createdAt: Date.now(),
       }),
       'EX',

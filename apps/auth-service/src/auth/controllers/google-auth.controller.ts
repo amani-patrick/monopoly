@@ -77,8 +77,10 @@ export class GoogleAuthController {
 
   /**
    * Verify Google access token validity
+   * Requires authentication — prevents use as an open email oracle
    */
   @Post('verify-token')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async verifyAccessToken(
     @Body() body: { accessToken: string },

@@ -21,12 +21,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { id, name, emails, photos } = profile;
+    // Do not forward the raw Google accessToken — only pass what's needed to create/link the user
     const user = {
       googleId: id,
       email: emails[0].value,
       displayName: `${name.givenName} ${name.familyName}`,
       picture: photos[0].value,
-      accessToken,
     };
     done(null, user);
   }

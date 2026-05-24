@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { HttpModule } from '@nestjs/axios';
+import * as path from 'path';
 
 import { GameController } from './game/game.controller';
 import { GameActionsController } from './game/game-actions.controller';
@@ -33,7 +34,10 @@ import { SuspicionRecord, SuspicionRecordSchema } from './anti-collusion/schemas
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
+    }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 200 }]),
     HttpModule,
 

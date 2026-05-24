@@ -8,10 +8,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: ['error','warn','log'] });
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(compression());
+  // Remove x-user from allowedHeaders — it's an internal header set by the gateway,
+  // never accepted from browser clients. Downstream services trust it only from the gateway.
   app.enableCors({
-    origin: [process.env.FRONTEND_URL||'http://localhost:3000'],
-    methods: ['GET','POST','PUT','DELETE','OPTIONS','PATCH'],
-    allowedHeaders: ['Content-Type','Authorization','x-user'],
+    origin: [process.env.FRONTEND_URL || 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));

@@ -229,12 +229,14 @@ export class AuthService {
     await this.redis.del(`auth:banned:${userId}`);
   }
 
-  async getUsers(page: number, limit: number): Promise<[UserEntity[], number]> {
-    return this.userRepo.findAndCount({
+  async getUsers(page: number, limit: number): Promise<{ users: Omit<UserEntity, 'passwordHash' | 'googleId'>[]; total: number }> {
+    const [rows, total] = await this.userRepo.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
+      select: ['id', 'email', 'displayName', 'avatar', 'role', 'isVerified', 'isBanned', 'banReason', 'createdAt', 'updatedAt', 'lastLoginAt'],
     });
+    return { users: rows, total };
   }
 
   // ============================================================

@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { HttpModule } from '@nestjs/axios';
+import * as path from 'path';
 
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -13,7 +14,10 @@ import { PlayerStats, PlayerStatsSchema } from './schemas/player-stats.schema';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
+    }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     HttpModule,
     

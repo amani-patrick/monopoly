@@ -131,10 +131,11 @@ export const useGameStore = create<GameStore>()(
       }),
       {
         name: 'umukino-store',
+        // Only persist non-sensitive UI identity — tokens are managed separately in useAuth
         partialize: (state) => ({
           currentUserId: state.currentUserId,
           currentUserName: state.currentUserName,
-          accessToken: state.accessToken,
+          // accessToken intentionally excluded — stored/read via localStorage in useAuth only
         }),
       },
     ),

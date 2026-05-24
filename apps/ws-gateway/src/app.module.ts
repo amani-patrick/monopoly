@@ -3,11 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { HttpModule } from '@nestjs/axios';
+import * as path from 'path';
 import { GameGateway } from './game.gateway';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
+    }),
 
     JwtModule.registerAsync({
       inject: [ConfigService],

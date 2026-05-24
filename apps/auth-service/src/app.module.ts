@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import * as path from 'path';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { FirebaseAuthService } from './auth/firebase-auth.service';
@@ -14,7 +15,10 @@ import { UserEntity } from './auth/entities/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
+    }),
 
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
 

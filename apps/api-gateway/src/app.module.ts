@@ -4,12 +4,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { HttpModule } from '@nestjs/axios';
+import * as path from 'path';
 import { GatewayController } from './gateway.controller';
 import { JwtStrategy } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
+    }),
 
     ThrottlerModule.forRoot([
       { name: 'short',  ttl: 1000,  limit: 20  },  // 20 req/sec

@@ -38,6 +38,14 @@ if [ ! -f .env ]; then
   fi
 fi
 
+# Load environment variables from .env
+if [ -f .env ]; then
+  set -a
+  source .env
+  set +a
+  echo -e "${GREEN}✓ Environment variables loaded from .env${NC}"
+fi
+
 # Verify .env files in services
 echo -e "${BLUE}Step 1: Verifying service .env files...${NC}"
 SERVICES=("api-gateway" "auth-service" "bot-service" "game-service" "leaderboard-service" "notification-service" "payment-service" "room-service" "wallet-service" "web" "ws-gateway")
