@@ -15,6 +15,7 @@ export const LOCAL_SERVICE_URLS = {
   room: localServiceUrl(3005),
   leaderboard: localServiceUrl(3006),
   notification: localServiceUrl(3007),
+  bot: localServiceUrl(3008),
   apiGateway: localServiceUrl(4000),
 } as const;
 

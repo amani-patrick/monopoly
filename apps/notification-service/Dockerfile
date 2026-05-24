@@ -30,10 +30,10 @@ COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/packages ./packages
 
 USER nestjs
-EXPOSE ${PORT:-3001}
+EXPOSE ${PORT:-3007}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
- CMD node -e "require('http').get('http://localhost:'+process.env.PORT+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+ CMD node -e "require('http').get('http://localhost:'+(process.env.PORT||3007)+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node", "dist/main"]
 

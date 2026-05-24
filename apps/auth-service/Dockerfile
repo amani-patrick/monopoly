@@ -33,7 +33,7 @@ USER nestjs
 EXPOSE ${PORT:-3001}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
- CMD node -e "require('http').get('http://localhost:'+process.env.PORT+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+ CMD node -e "require('http').get('http://localhost:'+(process.env.PORT||3001)+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node", "dist/main"]
 
