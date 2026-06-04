@@ -10,11 +10,10 @@ export interface AuthUser {
   avatar: string;
   role: 'player' | 'admin' | 'moderator';
   isVerified: boolean;
-  onboardingCompleted: boolean;
 }
 
 export function useAuth() {
-  const { setAuth, clearAuth, currentUserId, currentUserName } = useGameStore();
+  const { setAuth, clearAuth } = useGameStore();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +40,6 @@ export function useAuth() {
     const { data } = await api.login(email, password);
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
-    setAuth(data.user?.id || '', data.user?.displayName || '', data.accessToken);
     return await fetchMe();
   };
 
@@ -50,23 +48,6 @@ export function useAuth() {
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     return await fetchMe();
-  };
-
-  const loginWithGoogle = async (idToken: string) => {
-    const { data } = await api.loginWithGoogle(idToken);
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-    return await fetchMe();
-  };
-
-  const refreshUser = fetchMe;
-
-  const completeOnboarding = async (updates: { displayName?: string; avatar?: string }) => {
-    const { data } = await api.completeOnboarding(updates);
-    setUser(data);
-    const token = localStorage.getItem('accessToken') || '';
-    setAuth(data.id, data.displayName, token);
-    return data as AuthUser;
   };
 
   const logout = async () => {
@@ -78,5 +59,5 @@ export function useAuth() {
     window.location.href = '/';
   };
 
-  return { user, loading, login, register, loginWithGoogle, completeOnboarding, refreshUser, logout, isAdmin: user?.role === 'admin' };
+  return { user, loading, login, register, logout, isAdmin: user?.role === 'admin' };
 }

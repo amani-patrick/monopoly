@@ -2,23 +2,18 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import * as path from 'path';
+import { HttpModule } from '@nestjs/axios';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { FirebaseAuthService } from './auth/firebase-auth.service';
+import { NotificationClient } from './auth/notification.client';
 import { XUserGuard } from './auth/guards/x-user.guard';
-import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { UserEntity } from './auth/entities/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
-      isGlobal: true,
-      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
 
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
 
@@ -28,7 +23,7 @@ import { UserEntity } from './auth/entities/user.entity';
         type: 'postgres',
         url: cfg.get('DATABASE_URL'),
         entities: [UserEntity],
-        synchronize: false, // use migrations in prod
+        synchronize: false,
         ssl: cfg.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
         extra: { max: 10 },
       }),
@@ -44,16 +39,16 @@ import { UserEntity } from './auth/entities/user.entity';
       }),
     }),
 
-    PassportModule.register({}),
-
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
-        config: { url: cfg.get('REDIS_URL', 'redis://127.0.0.1:6379') },
+        config: { url: cfg.get<string>('REDIS_URL') || 'redis://127.0.0.1:6379' },
       }),
     }),
+
+    HttpModule.register({ timeout: 5000 }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, FirebaseAuthService, GoogleStrategy, XUserGuard],
+  providers: [AuthService, NotificationClient, XUserGuard],
 })
 export class AppModule {}

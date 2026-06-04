@@ -26,8 +26,16 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit() {
-    const redisUrl = this.config.get<string>('REDIS_URL') || 'redis://127.0.0.1:6379';
-    this.subscriber = new Redis(redisUrl);
+    const redisUrl = this.config.get<string>('REDIS_URL') || 'redis://127.0.0.1:6380';
+    this.subscriber = new Redis(redisUrl, {
+      // Retry with backoff instead of hammering — prevents the ECONNREFUSED spam
+      retryStrategy: (times) => Math.min(times * 500, 5000),
+      maxRetriesPerRequest: null,
+    });
+    // Prevent unhandled error crashes — ioredis emits 'error' on reconnect attempts
+    this.subscriber.on('error', (err) => {
+      this.logger.warn(`Redis connection error: ${err.message}`);
+    });
     await this.subscriber.subscribe(REDIS_CHANNELS.GAME_EVENTS);
     this.subscriber.on('message', (_ch, raw) => this.onRedisMessage(raw));
     this.logger.log(`Bot engine listening → ${this.gameServiceUrl}`);

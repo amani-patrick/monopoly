@@ -67,22 +67,6 @@ export class GatewayController {
     return this.proxy('auth', 'POST', '/auth/logout', body, req.user);
   }
 
-  @Get('auth/google')
-  async googleAuth() {
-    return this.proxy('auth', 'GET', '/auth/google');
-  }
-
-  @Get('auth/google/callback')
-  async googleCallback(@Query() query: any) {
-    return this.proxy('auth', 'GET', `/auth/google/callback?${new URLSearchParams(query)}`);
-  }
-
-  @Post('auth/firebase')
-  @UseGuards(RateLimitGuard)
-  async firebaseAuth(@Body() body: any) {
-    return this.proxy('auth', 'POST', '/auth/firebase', body);
-  }
-
   @Post('auth/verification/request')
   @UseGuards(JwtAuthGuard)
   async requestVerification(@Req() req: any) {
@@ -102,19 +86,13 @@ export class GatewayController {
   @Get('users/me')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req: any) {
-    return this.proxy('auth', 'GET', `/users/${req.user.sub}`, null, req.user);
+    return this.proxy('auth', 'GET', '/users/me', null, req.user);
   }
 
   @Put('users/me')
   @UseGuards(JwtAuthGuard)
   async updateProfile(@Body() body: any, @Req() req: any) {
     return this.proxy('auth', 'PUT', '/users/me', body, req.user);
-  }
-
-  @Post('users/me/onboarding')
-  @UseGuards(JwtAuthGuard)
-  async completeOnboarding(@Body() body: any, @Req() req: any) {
-    return this.proxy('auth', 'POST', '/users/me/onboarding', body, req.user);
   }
 
   @Put('users/me/password')

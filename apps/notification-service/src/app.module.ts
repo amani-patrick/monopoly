@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { HttpModule } from '@nestjs/axios';
-import * as path from 'path';
 
 
 
@@ -13,10 +12,7 @@ import { XUserGuard } from './guards/x-user.guard';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
-      isGlobal: true,
-      envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     HttpModule,
     

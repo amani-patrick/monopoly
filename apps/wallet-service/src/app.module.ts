@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { HttpModule } from '@nestjs/axios';
-import * as path from 'path';
 import { WalletController } from './wallet/wallet.controller';
 import { WalletService } from './wallet/wallet.service';
 import { WalletEntity, TransactionEntity } from './wallet/entities/wallet.entity';
@@ -15,7 +14,7 @@ import { XUserGuard } from './guards/x-user.guard';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
+    
       isGlobal: true,
       envFilePath: [path.resolve(__dirname, '../../.env'), '.env'],
     }),

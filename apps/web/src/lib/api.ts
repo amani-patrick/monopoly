@@ -17,23 +17,31 @@ class ApiClient {
       return cfg;
     });
 
-    // Auto-refresh on 401
+    // Auto-refresh on 401 — only for non-auth endpoints, only once
     this.http.interceptors.response.use(
       (res) => res,
       async (err: AxiosError) => {
-        if (err.response?.status === 401 && typeof window !== 'undefined') {
-          const rt = localStorage.getItem('refreshToken');
-          if (rt) {
-            try {
-              const { data } = await axios.post(`${BASE}/auth/refresh`, { refreshToken: rt });
-              localStorage.setItem('accessToken', data.accessToken);
-              localStorage.setItem('refreshToken', data.refreshToken);
-              err.config!.headers!.Authorization = `Bearer ${data.accessToken}`;
-              return this.http.request(err.config!);
-            } catch {
-              localStorage.clear();
-              window.location.href = '/auth/login';
-            }
+        const url = err.config?.url || '';
+        const isAuthEndpoint = url.includes('/auth/');
+        const hasRefreshToken = typeof window !== 'undefined' && !!localStorage.getItem('refreshToken');
+
+        if (
+          err.response?.status === 401 &&
+          !isAuthEndpoint &&
+          hasRefreshToken &&
+          !(err.config as any)._retried
+        ) {
+          (err.config as any)._retried = true;
+          try {
+            const rt = localStorage.getItem('refreshToken')!;
+            const { data } = await axios.post(`${BASE}/auth/refresh`, { refreshToken: rt });
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            err.config!.headers!.Authorization = `Bearer ${data.accessToken}`;
+            return this.http.request(err.config!);
+          } catch {
+            localStorage.clear();
+            window.location.href = '/auth/login';
           }
         }
         return Promise.reject(err);
@@ -48,9 +56,6 @@ class ApiClient {
   login(email: string, password: string) {
     return this.http.post('/auth/login', { email, password });
   }
-  loginWithGoogle(idToken: string) {
-    return this.http.post('/auth/firebase', { idToken });
-  }
   requestVerification() {
     return this.http.post('/auth/verification/request');
   }
@@ -62,7 +67,6 @@ class ApiClient {
   }
   getMe() { return this.http.get('/users/me'); }
   updateMe(data: any) { return this.http.put('/users/me', data); }
-  completeOnboarding(data: any) { return this.http.post('/users/me/onboarding', data); }
   changePassword(oldPassword: string, newPassword: string) {
     return this.http.put('/users/me/password', { oldPassword, newPassword });
   }

@@ -9,6 +9,7 @@ import { REDIS_CHANNELS } from '@umukino/shared-events';
 export class NotificationService implements OnModuleInit {
   private readonly logger = new Logger(NotificationService.name);
   private transporter: nodemailer.Transporter;
+  private readonly appName = 'Monopoly';
 
   constructor(
     private readonly config: ConfigService,
@@ -21,27 +22,34 @@ export class NotificationService implements OnModuleInit {
   }
 
   private setupMailer() {
+    const user = this.config.get<string>('SMTP_USER');
+    const pass = this.config.get<string>('SMTP_PASS');
+
+    if (!user || !pass) {
+      this.logger.warn('SMTP_USER or SMTP_PASS not set — emails will be logged only');
+      return;
+    }
+
     this.transporter = nodemailer.createTransport({
-      host: this.config.get('SMTP_HOST', 'smtp.gmail.com'),
-      port: this.config.get<number>('SMTP_PORT', 587),
+      host: this.config.get<string>('SMTP_HOST') || 'smtp.gmail.com',
+      port: this.config.get<number>('SMTP_PORT') || 587,
       secure: false,
-      auth: {
-        user: this.config.get('SMTP_USER'),
-        pass: this.config.get('SMTP_PASS'),
-      },
+      auth: { user, pass },
     });
+
+    this.logger.log(`Mailer ready → ${user}`);
   }
 
   private subscribeToEvents() {
     const sub = this.redis.duplicate();
     sub.subscribe(REDIS_CHANNELS.PAYMENT_EVENTS, REDIS_CHANNELS.NOTIFICATION_EVENTS);
 
-    sub.on('message', async (channel, message) => {
+    sub.on('message', async (_channel, message) => {
       try {
         const payload = JSON.parse(message);
         await this.handleEvent(payload);
-      } catch (err) {
-        this.logger.error('Notification event error:', err);
+      } catch (err: any) {
+        this.logger.error('Notification event error:', err.message);
       }
     });
 
@@ -65,52 +73,55 @@ export class NotificationService implements OnModuleInit {
   }
 
   // ============================================================
-  // EMAIL NOTIFICATIONS
+  // PUBLIC API — called by other services
   // ============================================================
 
+  async sendOtpEmail(email: string, displayName: string, code: string): Promise<void> {
+    await this.sendEmail(
+      email,
+      `${this.appName} — Your verification code`,
+      this.otpTemplate(displayName, code),
+    );
+  }
+
+  async sendWelcomeEmail(email: string, displayName: string): Promise<void> {
+    await this.sendEmail(
+      email,
+      `Welcome to ${this.appName}!`,
+      this.welcomeTemplate(displayName),
+    );
+  }
+
+  async sendPasswordResetEmail(email: string, displayName: string, resetToken: string): Promise<void> {
+    const resetUrl = `${this.config.get('FRONTEND_URL') || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+    await this.sendEmail(
+      email,
+      `${this.appName} — Reset your password`,
+      this.passwordResetTemplate(displayName, resetUrl),
+    );
+  }
+
   async sendDepositConfirmation(userId: string, data: { amount: number; reference: string }) {
-    // In production: look up user email from auth service
     this.logger.log(`[NOTIFY] Deposit confirmed for user ${userId}: ${data.amount} RWF (${data.reference})`);
-    // await this.sendEmail(userEmail, 'Deposit Confirmed', this.depositTemplate(data));
   }
 
   async sendPrizeNotification(userId: string, data: { amount: number; roomId: string }) {
     this.logger.log(`[NOTIFY] Prize credited to user ${userId}: ${data.amount} RWF from room ${data.roomId}`);
   }
 
-  async sendWelcomeEmail(email: string, displayName: string): Promise<void> {
-    await this.sendEmail(
-      email,
-      '🎲 Welcome to Umukino!',
-      this.welcomeTemplate(displayName),
-    );
-  }
-
-  async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
-    const resetUrl = `${this.config.get('FRONTEND_URL')}/auth/reset-password?token=${resetToken}`;
-    await this.sendEmail(
-      email,
-      'Reset your Umukino password',
-      this.passwordResetTemplate(resetUrl),
-    );
-  }
-
   public async sendEmail(to: string, subject: string, html: string): Promise<void> {
-    if (!this.config.get('SMTP_USER')) {
+    if (!this.transporter) {
       this.logger.debug(`[EMAIL MOCK] To: ${to} | Subject: ${subject}`);
       return;
     }
 
+    const from = this.config.get<string>('SMTP_FROM') || `${this.appName} <pazzoamani@gmail.com>`;
+
     try {
-      await this.transporter.sendMail({
-        from: `"Umukino" <${this.config.get('SMTP_FROM', 'noreply@umukino.rw')}>`,
-        to,
-        subject,
-        html,
-      });
-      this.logger.log(`Email sent: ${to} — ${subject}`);
-    } catch (err) {
-      this.logger.error(`Email failed: ${to} — ${err.message}`);
+      await this.transporter.sendMail({ from, to, subject, html });
+      this.logger.log(`Email sent → ${to} | ${subject}`);
+    } catch (err: any) {
+      this.logger.error(`Email failed → ${to} | ${err.message}`);
     }
   }
 
@@ -118,41 +129,47 @@ export class NotificationService implements OnModuleInit {
   // EMAIL TEMPLATES
   // ============================================================
 
+  private otpTemplate(name: string, code: string): string {
+    return `
+      <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#1a1a2e;color:#fff;padding:36px;border-radius:12px">
+        <h2 style="color:#a855f7;margin-top:0">🎲 ${this.appName}</h2>
+        <p>Hi <strong>${name}</strong>,</p>
+        <p>Your email verification code is:</p>
+        <div style="background:#2d2d4e;border-radius:10px;padding:24px;text-align:center;margin:24px 0">
+          <span style="font-size:2.4rem;font-weight:900;letter-spacing:0.3em;color:#a855f7">${code}</span>
+        </div>
+        <p style="color:#aaa;font-size:0.85rem">This code expires in <strong style="color:#fff">30 minutes</strong>. If you didn't request this, ignore the email.</p>
+      </div>
+    `;
+  }
+
   private welcomeTemplate(name: string): string {
     return `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#1a1a2e;color:#fff;padding:32px;border-radius:12px">
-        <h1 style="color:#a855f7">🎲 Murakaza neza kuri Umukino!</h1>
-        <p>Muraho <strong>${name}</strong>,</p>
+      <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#1a1a2e;color:#fff;padding:36px;border-radius:12px">
+        <h2 style="color:#a855f7;margin-top:0">🎲 Welcome to ${this.appName}!</h2>
+        <p>Hi <strong>${name}</strong>,</p>
         <p>Your account is ready. Deposit via MTN MoMo, Airtel Money, or USDT to start playing!</p>
-        <div style="background:#2d2d4e;padding:16px;border-radius:8px;margin:16px 0">
-          <p style="margin:0">🎮 Create a private room and share the link with friends</p>
-          <p style="margin:0">💰 Entry fees build a prize pool — winner takes all (minus our 10% cut)</p>
-          <p style="margin:0">🏆 Track your rank on the leaderboard</p>
+        <div style="background:#2d2d4e;padding:16px;border-radius:8px;margin:20px 0;line-height:1.8">
+          <p style="margin:0">🎮 Create a private room and invite friends</p>
+          <p style="margin:0">💰 Entry fees build a prize pool — winner takes all</p>
+          <p style="margin:0">🏆 Climb the leaderboard</p>
         </div>
         <p>Good luck! <em>Tugire akari!</em></p>
       </div>
     `;
   }
 
-  private depositTemplate(data: { amount: number; reference: string }): string {
+  private passwordResetTemplate(name: string, url: string): string {
     return `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#1a1a2e;color:#fff;padding:32px;border-radius:12px">
-        <h2 style="color:#22c55e">✅ Deposit Confirmed</h2>
-        <p>Your deposit of <strong>${data.amount.toLocaleString()} RWF</strong> has been credited to your wallet.</p>
-        <p style="color:#888;font-size:12px">Reference: ${data.reference}</p>
-      </div>
-    `;
-  }
-
-  private passwordResetTemplate(url: string): string {
-    return `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#1a1a2e;color:#fff;padding:32px;border-radius:12px">
-        <h2 style="color:#a855f7">🔑 Reset Your Password</h2>
-        <p>Click the button below to reset your password. This link expires in 1 hour.</p>
-        <a href="${url}" style="display:inline-block;background:#a855f7;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;margin:16px 0">Reset Password</a>
-        <p style="color:#888;font-size:12px">If you didn't request this, ignore this email.</p>
+      <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#1a1a2e;color:#fff;padding:36px;border-radius:12px">
+        <h2 style="color:#a855f7;margin-top:0">🔑 Reset Your Password</h2>
+        <p>Hi <strong>${name}</strong>,</p>
+        <p>Click the button below to reset your password. This link expires in <strong>1 hour</strong>.</p>
+        <div style="text-align:center;margin:28px 0">
+          <a href="${url}" style="display:inline-block;background:#a855f7;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem">Reset Password</a>
+        </div>
+        <p style="color:#aaa;font-size:0.85rem">If you didn't request this, you can safely ignore this email.</p>
       </div>
     `;
   }
 }
-
