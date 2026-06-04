@@ -3,11 +3,9 @@ import {
   UseGuards, HttpCode, HttpStatus, ValidationPipe,
   UsePipes, ForbiddenException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { XUserGuard } from './guards/x-user.guard';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
-import { FirebaseAuthService } from './firebase-auth.service';
 import { IsEmail, IsString, MinLength, MaxLength, Matches, IsOptional } from 'class-validator';
 
 // ---- DTOs ----
@@ -21,7 +19,6 @@ class LoginDto {
   @IsString() password: string;
 }
 class RefreshDto { @IsString() refreshToken: string; }
-class FirebaseAuthDto { @IsString() idToken: string; }
 class VerifyEmailDto { @IsString() code: string; }
 class ChangePasswordDto {
   @IsString() oldPassword: string;
@@ -36,10 +33,7 @@ class UpdateProfileDto {
 @UseGuards(ThrottlerGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 export class AuthController {
-  constructor(
-    private readonly auth: AuthService,
-    private readonly firebase: FirebaseAuthService,
-  ) {}
+  constructor(private readonly auth: AuthService) {}
 
   // ---- Health ----
   @Get('health')
@@ -76,29 +70,21 @@ export class AuthController {
     return { success: true };
   }
 
-  // ---- Firebase Google (client-side) ----
-  @Post('auth/firebase')
+  // ---- Email Verification (OTP) ----
+  @Post('auth/verification/request')
+  @UseGuards(XUserGuard)
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async firebaseAuth(@Body() dto: FirebaseAuthDto) {
-    const profile = await this.firebase.verifyIdToken(dto.idToken);
-    return this.auth.handleFirebaseAuth({
-      googleId: profile.uid,
-      email: profile.email,
-      displayName: profile.displayName,
-      picture: profile.picture,
-    });
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  async requestVerification(@Req() req: any) {
+    return this.auth.requestVerification(req.user.sub);
   }
 
-  // ---- Google OAuth (Passport redirect — legacy) ----
-  @Get('auth/google')
-  @UseGuards(AuthGuard('google'))
-  googleAuth() { /* Passport redirects */ }
-
-  @Get('auth/google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: any) {
-    return this.auth.handleGoogleAuth(req.user);
+  @Post('auth/verification/confirm')
+  @UseGuards(XUserGuard)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async confirmVerification(@Req() req: any, @Body() dto: VerifyEmailDto) {
+    return this.auth.verifyEmail(req.user.sub, dto.code);
   }
 
   // ---- Profile ----
@@ -113,27 +99,6 @@ export class AuthController {
   async updateMe(@Req() req: any, @Body() dto: UpdateProfileDto) {
     await this.auth.updateProfile(req.user.sub, dto);
     return this.auth.getProfile(req.user.sub);
-  }
-
-  @Post('users/me/onboarding')
-  @UseGuards(XUserGuard)
-  @HttpCode(HttpStatus.OK)
-  async completeOnboarding(@Req() req: any, @Body() dto: UpdateProfileDto) {
-    return this.auth.completeOnboarding(req.user.sub, dto);
-  }
-
-  @Post('auth/verification/request')
-  @UseGuards(XUserGuard)
-  @HttpCode(HttpStatus.OK)
-  async requestVerification(@Req() req: any) {
-    return this.auth.requestVerification(req.user.sub);
-  }
-
-  @Post('auth/verification/confirm')
-  @UseGuards(XUserGuard)
-  @HttpCode(HttpStatus.OK)
-  async confirmVerification(@Req() req: any, @Body() dto: VerifyEmailDto) {
-    return this.auth.verifyEmail(req.user.sub, dto.code);
   }
 
   @Put('users/me/password')

@@ -92,65 +92,6 @@ export class AuthService {
   }
 
   // ============================================================
-  // GOOGLE OAUTH
-  // ============================================================
-
-  async handleFirebaseAuth(profile: {
-    googleId: string;
-    email: string;
-    displayName: string;
-    picture?: string;
-  }): Promise<AuthTokens> {
-    return this.linkOrCreateOAuthUser(profile);
-  }
-
-  async handleGoogleAuth(googleUser: {
-    googleId: string;
-    email: string;
-    displayName: string;
-    picture: string;
-  }): Promise<AuthTokens> {
-    return this.linkOrCreateOAuthUser(googleUser);
-  }
-
-  private async linkOrCreateOAuthUser(googleUser: {
-    googleId: string;
-    email: string;
-    displayName: string;
-    picture?: string;
-  }): Promise<AuthTokens> {
-    let user = await this.userRepo.findOne({ where: { googleId: googleUser.googleId } });
-
-    if (!user) {
-      // Check if email already registered manually
-      const existing = await this.userRepo.findOne({ where: { email: googleUser.email.toLowerCase() } });
-      if (existing) {
-        // Link Google account to existing user
-        await this.userRepo.update(existing.id, { googleId: googleUser.googleId, avatar: googleUser.picture });
-        user = { ...existing, googleId: googleUser.googleId };
-      } else {
-        // Create new user
-        user = await this.userRepo.save({
-          id: uuid(),
-          email: googleUser.email.toLowerCase(),
-          googleId: googleUser.googleId,
-          displayName: googleUser.displayName.trim().slice(0, 30),
-          avatar: googleUser.picture || this.randomAvatar(),
-          role: 'player',
-          isVerified: true, // Google verifies email
-          onboardingCompleted: false,
-          isBanned: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
-    }
-
-    if (user.isBanned) throw new UnauthorizedException('Account banned');
-    return this.generateTokens(user);
-  }
-
-  // ============================================================
   // TOKEN MANAGEMENT
   // ============================================================
 
