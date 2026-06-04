@@ -91,10 +91,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('room:join')
-  async onRoomJoin(@ConnectedSocket() s: AuthSocket, @MessageBody() { roomCode }: { roomCode: string }) {
+  async onRoomJoin(@ConnectedSocket() s: AuthSocket, @MessageBody() { roomCode, avatar }: { roomCode: string; avatar?: string }) {
     s.join(`room:${roomCode}`); s.roomId = roomCode;
-    const room = await this.callRoom('POST', `/rooms/${roomCode}/join`, {}, s.userId).catch(e => { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); return null; });
+    const room = await this.callRoom('POST', `/rooms/${roomCode}/join`, { avatar }, s.userId).catch(e => { s.emit(GAME_EVENTS.GAME_ERROR, { message: e.message }); return null; });
     if (room) this.server.to(`room:${roomCode}`).emit(GAME_EVENTS.ROOM_PLAYER_JOINED, { room });
+    return { success: !!room, room };
+  }
+
+  @SubscribeMessage('room:watch')
+  async onRoomWatch(@ConnectedSocket() s: AuthSocket, @MessageBody() { roomCode }: { roomCode: string }) {
+    s.join(`room:${roomCode}`);
+    s.roomId = roomCode;
+    const room = await this.callRoom('GET', `/rooms/${roomCode}`, null, s.userId).catch(() => null);
+    if (room) s.emit(GAME_EVENTS.ROOM_PLAYER_JOINED, { room });
     return { success: !!room, room };
   }
 
@@ -221,4 +230,3 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return data;
   }
 }
-

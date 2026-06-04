@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   avatar VARCHAR(255) DEFAULT 'green',
   role VARCHAR(20) NOT NULL DEFAULT 'player' CHECK (role IN ('player', 'admin', 'moderator')),
   is_verified BOOLEAN NOT NULL DEFAULT false,
+  onboarding_completed BOOLEAN NOT NULL DEFAULT false,
   is_banned BOOLEAN NOT NULL DEFAULT false,
   is_shadow_banned BOOLEAN DEFAULT false,
   ban_reason TEXT,

@@ -34,6 +34,20 @@ export default function HomePage() {
   const [showRooms, setShowRooms] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+  const playHref = !user
+    ? '/auth/login'
+    : !user.onboardingCompleted
+      ? '/onboarding'
+      : !user.isVerified
+        ? '/auth/verify'
+        : '/lobby/quick';
+  const createHref = !user
+    ? '/auth/login'
+    : !user.onboardingCompleted
+      ? '/onboarding'
+      : !user.isVerified
+        ? '/auth/verify'
+        : '/lobby/create';
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', overflowX: 'hidden' }}>
@@ -100,7 +114,7 @@ export default function HomePage() {
           {/* Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
             <Link
-              href={user ? '/lobby/quick' : '/auth/login'}
+              href={playHref}
               className="btn-primary animate-glow"
               style={{ fontSize: '1.15rem', padding: '0.95rem 3.5rem', borderRadius: '50px' }}
             >
@@ -111,7 +125,7 @@ export default function HomePage() {
                 className="btn-secondary" style={{ borderRadius: '50px', gap: '8px' }}>
                 <UsersIcon /> All rooms
               </button>
-              <Link href="/lobby/create" className="btn-secondary" style={{ borderRadius: '50px', gap: '8px' }}>
+              <Link href={createHref} className="btn-secondary" style={{ borderRadius: '50px', gap: '8px' }}>
                 <LockIcon /> Create a private game
               </Link>
             </div>
@@ -133,7 +147,7 @@ export default function HomePage() {
       <section id="rooms" style={{ padding: '2rem 1.5rem 4rem', maxWidth: '1280px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '1.35rem', fontWeight: 700 }}>Open Rooms</h2>
-          <Link href="/lobby/create" className="btn-primary" style={{ borderRadius: '50px', fontSize: '0.9rem' }}>
+          <Link href={createHref} className="btn-primary" style={{ borderRadius: '50px', fontSize: '0.9rem' }}>
             + Create Room
           </Link>
         </div>

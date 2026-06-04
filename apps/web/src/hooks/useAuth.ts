@@ -10,6 +10,7 @@ export interface AuthUser {
   avatar: string;
   role: 'player' | 'admin' | 'moderator';
   isVerified: boolean;
+  onboardingCompleted: boolean;
 }
 
 export function useAuth() {
@@ -19,14 +20,16 @@ export function useAuth() {
 
   const fetchMe = useCallback(async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token) { setLoading(false); return; }
+    if (!token) { setLoading(false); return null; }
     try {
       const { data } = await api.getMe();
       setUser(data);
       setAuth(data.id, data.displayName, token);
+      return data as AuthUser;
     } catch {
       clearAuth();
       setUser(null);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -39,27 +42,32 @@ export function useAuth() {
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     setAuth(data.user?.id || '', data.user?.displayName || '', data.accessToken);
-    await fetchMe();
-    return data;
+    return await fetchMe();
   };
 
   const register = async (email: string, password: string, displayName: string) => {
     const { data } = await api.register(email, password, displayName);
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
-    await fetchMe();
-    return data;
+    return await fetchMe();
   };
 
   const loginWithGoogle = async (idToken: string) => {
     const { data } = await api.loginWithGoogle(idToken);
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
-    await fetchMe();
-    return data;
+    return await fetchMe();
   };
 
   const refreshUser = fetchMe;
+
+  const completeOnboarding = async (updates: { displayName?: string; avatar?: string }) => {
+    const { data } = await api.completeOnboarding(updates);
+    setUser(data);
+    const token = localStorage.getItem('accessToken') || '';
+    setAuth(data.id, data.displayName, token);
+    return data as AuthUser;
+  };
 
   const logout = async () => {
     const rt = localStorage.getItem('refreshToken') || '';
@@ -70,5 +78,5 @@ export function useAuth() {
     window.location.href = '/';
   };
 
-  return { user, loading, login, register, loginWithGoogle, logout, isAdmin: user?.role === 'admin' };
+  return { user, loading, login, register, loginWithGoogle, completeOnboarding, refreshUser, logout, isAdmin: user?.role === 'admin' };
 }

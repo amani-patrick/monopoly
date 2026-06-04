@@ -1,0 +1,68 @@
+Implemented so far:
+
+  - Added persistent onboarding state:
+      - users.onboarding_completed
+      - UserEntity.onboardingCompleted
+      - JWT/profile payload now includes isVerified and onboardingCompleted
+
+  - Added email verification flow:
+      - Backend endpoints:
+          - POST /auth/verification/request
+          - POST /auth/verification/confirm
+
+      - Redis-backed 6-digit verification codes
+      - Dev mode returns/logs the code so local testing works without SMTP
+
+  - Added onboarding flow:
+      - New /onboarding page
+      - First-time Google users go to onboarding
+      - First-time email/password users go to onboarding, then verification if email is not
+        verified
+
+      - Onboarding saves display name and avatar
+
+  - Fixed gateway/profile contract bugs:
+      - PUT /users/me now proxies to the correct auth-service route
+      - PUT /users/me/password now proxies correctly
+      - Added POST /users/me/onboarding
+
+  - Improved private lobby behavior:
+      - Opening a lobby now watches the room instead of auto-joining before color selection
+      - Added room:watch socket event
+      - Joining now preserves selected avatar
+      - Spectating now calls the proper spectate endpoint instead of join
+
+  - Added frontend auth routing:
+      - Login/register/Google redirect users based on onboarding and verification state
+      - Create-room page redirects unauthenticated, not-onboarded, or unverified users to the
+        right step
+
+      - Home page Play/Create buttons route through the same checks
+
+  Verified:
+
+  - @umukino/shared-types builds
+  - @umukino/auth-service builds
+  - @umukino/api-gateway builds
+  - @umukino/ws-gateway builds
+
+  Not finished / needs follow-up:
+
+  - @umukino/web production build still fails with a generic webpack error, but the output did not
+    expose the exact module error before interruption. That needs to be diagnosed and fixed.
+
+  - Existing DBs need a migration or manual ALTER TABLE for onboarding_completed; init-db.sql only
+    covers fresh Docker volumes.
+
+  - Email verification currently uses Redis/dev code. Production needs real email delivery via
+    SMTP/provider and branded email templates.
+
+  - Google/Firebase production setup needs real Firebase env vars and server credentials.
+  - Verification is enforced in frontend routing, not yet hard-blocked on backend room creation/
+    joining. For production, backend should enforce verified/onboarded accounts for protected game
+    actions.
+
+  - Lobby/game flow needs end-to-end browser testing with 2 accounts after the web build is fixed.
+  - Production readiness still needs security hardening: rate limits for verification resend/
+    confirm, audit logging, token refresh review, secrets rotation, and proper migration tooling.
+

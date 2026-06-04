@@ -20,8 +20,8 @@ export default function LoginPage() {
     setGoogleLoading(true); setError('');
     try {
       const idToken = await signInWithGooglePopup();
-      await loginWithGoogle(idToken);
-      router.push('/');
+      const user = await loginWithGoogle(idToken);
+      router.push(user?.onboardingCompleted ? '/' : '/onboarding');
     } catch (err) {
       setError(getErrorMsg(err));
     } finally {
@@ -33,8 +33,10 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      await login(email, password);
-      router.push('/');
+      const user = await login(email, password);
+      if (!user?.onboardingCompleted) router.push('/onboarding');
+      else if (!user.isVerified) router.push('/auth/verify');
+      else router.push('/');
     } catch (err) {
       setError(getErrorMsg(err));
     } finally {

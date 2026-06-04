@@ -8,7 +8,7 @@ import { XUserGuard } from './guards/x-user.guard';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { FirebaseAuthService } from './firebase-auth.service';
-import { IsEmail, IsString, MinLength, MaxLength, Matches } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, Matches, IsOptional } from 'class-validator';
 
 // ---- DTOs ----
 class RegisterDto {
@@ -22,13 +22,14 @@ class LoginDto {
 }
 class RefreshDto { @IsString() refreshToken: string; }
 class FirebaseAuthDto { @IsString() idToken: string; }
+class VerifyEmailDto { @IsString() code: string; }
 class ChangePasswordDto {
   @IsString() oldPassword: string;
   @IsString() @MinLength(8) newPassword: string;
 }
 class UpdateProfileDto {
-  @IsString() @MaxLength(30) displayName?: string;
-  @IsString() avatar?: string;
+  @IsOptional() @IsString() @MaxLength(30) displayName?: string;
+  @IsOptional() @IsString() avatar?: string;
 }
 
 @Controller()
@@ -112,6 +113,27 @@ export class AuthController {
   async updateMe(@Req() req: any, @Body() dto: UpdateProfileDto) {
     await this.auth.updateProfile(req.user.sub, dto);
     return this.auth.getProfile(req.user.sub);
+  }
+
+  @Post('users/me/onboarding')
+  @UseGuards(XUserGuard)
+  @HttpCode(HttpStatus.OK)
+  async completeOnboarding(@Req() req: any, @Body() dto: UpdateProfileDto) {
+    return this.auth.completeOnboarding(req.user.sub, dto);
+  }
+
+  @Post('auth/verification/request')
+  @UseGuards(XUserGuard)
+  @HttpCode(HttpStatus.OK)
+  async requestVerification(@Req() req: any) {
+    return this.auth.requestVerification(req.user.sub);
+  }
+
+  @Post('auth/verification/confirm')
+  @UseGuards(XUserGuard)
+  @HttpCode(HttpStatus.OK)
+  async confirmVerification(@Req() req: any, @Body() dto: VerifyEmailDto) {
+    return this.auth.verifyEmail(req.user.sub, dto.code);
   }
 
   @Put('users/me/password')

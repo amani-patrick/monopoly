@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
+import { useAuth } from '@/hooks/useAuth';
 import { api, getErrorMsg } from '@/lib/api';
 import {
   CopyIcon, LockIcon, UsersIcon, GamepadIcon, CoinsIcon,
@@ -28,6 +29,7 @@ const DEFAULT_SETTINGS = {
 
 export default function CreateRoomPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [lobbyType, setLobbyType] = useState<'friendly' | 'paid'>('friendly');
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,13 @@ export default function CreateRoomPage() {
     setSettings(s => ({ ...s, [key]: !s[key] }));
   const set = (key: keyof typeof settings, val: any) =>
     setSettings(s => ({ ...s, [key]: val }));
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) router.replace('/auth/login');
+    else if (!user.onboardingCompleted) router.replace('/onboarding');
+    else if (!user.isVerified) router.replace('/auth/verify');
+  }, [authLoading, user, router]);
 
   async function handleCreate() {
     if (!name.trim()) { setError('Give your room a name'); return; }

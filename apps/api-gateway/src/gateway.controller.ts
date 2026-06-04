@@ -83,6 +83,18 @@ export class GatewayController {
     return this.proxy('auth', 'POST', '/auth/firebase', body);
   }
 
+  @Post('auth/verification/request')
+  @UseGuards(JwtAuthGuard)
+  async requestVerification(@Req() req: any) {
+    return this.proxy('auth', 'POST', '/auth/verification/request', {}, req.user);
+  }
+
+  @Post('auth/verification/confirm')
+  @UseGuards(JwtAuthGuard)
+  async confirmVerification(@Body() body: any, @Req() req: any) {
+    return this.proxy('auth', 'POST', '/auth/verification/confirm', body, req.user);
+  }
+
   // ============================================================
   // USER ROUTES (authenticated)
   // ============================================================
@@ -96,13 +108,19 @@ export class GatewayController {
   @Put('users/me')
   @UseGuards(JwtAuthGuard)
   async updateProfile(@Body() body: any, @Req() req: any) {
-    return this.proxy('auth', 'PUT', `/users/${req.user.sub}`, body, req.user);
+    return this.proxy('auth', 'PUT', '/users/me', body, req.user);
+  }
+
+  @Post('users/me/onboarding')
+  @UseGuards(JwtAuthGuard)
+  async completeOnboarding(@Body() body: any, @Req() req: any) {
+    return this.proxy('auth', 'POST', '/users/me/onboarding', body, req.user);
   }
 
   @Put('users/me/password')
   @UseGuards(JwtAuthGuard)
   async changePassword(@Body() body: any, @Req() req: any) {
-    return this.proxy('auth', 'PUT', `/users/${req.user.sub}/password`, body, req.user);
+    return this.proxy('auth', 'PUT', '/users/me/password', body, req.user);
   }
 
   // ============================================================
@@ -127,8 +145,8 @@ export class GatewayController {
 
   @Post('rooms/:code/join')
   @UseGuards(JwtAuthGuard)
-  async joinRoom(@Param('code') code: string, @Req() req: any) {
-    return this.proxy('room', 'POST', `/rooms/${code}/join`, { userId: req.user.sub }, req.user);
+  async joinRoom(@Param('code') code: string, @Body() body: any, @Req() req: any) {
+    return this.proxy('room', 'POST', `/rooms/${code}/join`, body, req.user);
   }
 
   @Post('rooms/:code/leave')

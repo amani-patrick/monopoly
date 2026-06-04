@@ -49,11 +49,13 @@ export class AuthService {
       avatar: this.randomAvatar(),
       role: 'player',
       isVerified: false,
+      onboardingCompleted: false,
       isBanned: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
+    await this.createVerificationCode(user);
     this.logger.log(`New user registered: ${user.id} (${user.email})`);
     return this.generateTokens(user);
   }
@@ -136,6 +138,7 @@ export class AuthService {
           avatar: googleUser.picture || this.randomAvatar(),
           role: 'player',
           isVerified: true, // Google verifies email
+          onboardingCompleted: false,
           isBanned: false,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -203,6 +206,31 @@ export class AuthService {
     await this.userRepo.update(userId, patch);
   }
 
+  async completeOnboarding(userId: string, updates: { displayName?: string; avatar?: string }): Promise<Omit<UserEntity, 'passwordHash' | 'googleId'>> {
+    await this.updateProfile(userId, updates);
+    await this.userRepo.update(userId, { onboardingCompleted: true, updatedAt: new Date() });
+    return this.getProfile(userId);
+  }
+
+  async requestVerification(userId: string): Promise<{ success: true; devCode?: string }> {
+    const user = await this.userRepo.findOneOrFail({ where: { id: userId } });
+    if (user.isVerified) return { success: true };
+    const code = await this.createVerificationCode(user);
+    return this.devVerificationResponse(code);
+  }
+
+  async verifyEmail(userId: string, code: string): Promise<{ success: true }> {
+    const key = `auth:verify:${userId}`;
+    const expected = await this.redis.get(key);
+    if (!expected || expected !== code.trim()) {
+      throw new BadRequestException('Invalid or expired verification code');
+    }
+
+    await this.userRepo.update(userId, { isVerified: true, updatedAt: new Date() });
+    await this.redis.del(key);
+    return { success: true };
+  }
+
   async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
     const user = await this.userRepo.findOneOrFail({ where: { id: userId } });
     if (!user.passwordHash) throw new BadRequestException('Account uses social login');
@@ -234,7 +262,7 @@ export class AuthService {
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
-      select: ['id', 'email', 'displayName', 'avatar', 'role', 'isVerified', 'isBanned', 'banReason', 'createdAt', 'updatedAt', 'lastLoginAt'],
+      select: ['id', 'email', 'displayName', 'avatar', 'role', 'isVerified', 'onboardingCompleted', 'isBanned', 'banReason', 'createdAt', 'updatedAt', 'lastLoginAt'],
     });
     return { users: rows, total };
   }
@@ -249,6 +277,8 @@ export class AuthService {
       email: user.email,
       displayName: user.displayName,
       role: (user.role as JwtPayload['role']) || 'player',
+      isVerified: user.isVerified,
+      onboardingCompleted: user.onboardingCompleted,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -284,5 +314,17 @@ export class AuthService {
   private randomAvatar(): string {
     const colors = ['green', 'yellow', 'orange', 'red', 'blue', 'cyan', 'teal', 'pink', 'purple'];
     return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  private async createVerificationCode(user: UserEntity): Promise<string> {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    await this.redis.set(`auth:verify:${user.id}`, code, 'EX', 30 * 60);
+    this.logger.log(`Verification code for ${user.email}: ${code}`);
+    return code;
+  }
+
+  private devVerificationResponse(code: string): { success: true; devCode?: string } {
+    if (this.config.get('NODE_ENV') === 'production') return { success: true };
+    return { success: true, devCode: code };
   }
 }

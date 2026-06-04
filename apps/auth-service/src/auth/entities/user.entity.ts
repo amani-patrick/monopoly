@@ -10,6 +10,7 @@ export class UserEntity {
   @Column({ default: 'green' }) avatar: string;
   @Column({ default: 'player' }) role: string;
   @Column({ default: false, name: 'is_verified' }) isVerified: boolean;
+  @Column({ default: false, name: 'onboarding_completed' }) onboardingCompleted: boolean;
   @Column({ default: false, name: 'is_banned' }) isBanned: boolean;
   @Column({ nullable: true, name: 'ban_reason' }) banReason?: string;
   @Column({ nullable: true, name: 'is_shadow_banned' }) isShadowBanned?: boolean;

@@ -23,8 +23,8 @@ export default function RegisterPage() {
     setGoogleLoading(true); setError('');
     try {
       const idToken = await signInWithGooglePopup();
-      await loginWithGoogle(idToken);
-      router.push('/');
+      const user = await loginWithGoogle(idToken);
+      router.push(user?.onboardingCompleted ? '/' : '/onboarding');
     } catch (err) {
       setError(getErrorMsg(err));
     } finally {
@@ -40,7 +40,7 @@ export default function RegisterPage() {
     setLoading(true); setError('');
     try {
       await register(form.email, form.password, form.displayName);
-      router.push('/');
+      router.push('/onboarding');
     } catch (err) { setError(getErrorMsg(err)); }
     finally { setLoading(false); }
   }

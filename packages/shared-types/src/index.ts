@@ -346,6 +346,8 @@ export interface JwtPayload {
   email: string;
   displayName: string;
   role: UserRole;
+  isVerified?: boolean;
+  onboardingCompleted?: boolean;
   iat?: number;
   exp?: number;
 }

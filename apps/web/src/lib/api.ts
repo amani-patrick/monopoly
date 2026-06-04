@@ -51,11 +51,18 @@ class ApiClient {
   loginWithGoogle(idToken: string) {
     return this.http.post('/auth/firebase', { idToken });
   }
+  requestVerification() {
+    return this.http.post('/auth/verification/request');
+  }
+  confirmVerification(code: string) {
+    return this.http.post('/auth/verification/confirm', { code });
+  }
   logout(refreshToken: string) {
     return this.http.post('/auth/logout', { refreshToken });
   }
   getMe() { return this.http.get('/users/me'); }
   updateMe(data: any) { return this.http.put('/users/me', data); }
+  completeOnboarding(data: any) { return this.http.post('/users/me/onboarding', data); }
   changePassword(oldPassword: string, newPassword: string) {
     return this.http.put('/users/me/password', { oldPassword, newPassword });
   }
@@ -64,8 +71,9 @@ class ApiClient {
   createRoom(data: any)  { return this.http.post('/rooms', data); }
   getPublicRooms()       { return this.http.get('/rooms'); }
   getRoomByCode(code: string) { return this.http.get(`/rooms/${code}`); }
-  joinRoom(code: string) { return this.http.post(`/rooms/${code}/join`); }
+  joinRoom(code: string, avatar?: string) { return this.http.post(`/rooms/${code}/join`, { avatar }); }
   leaveRoom(code: string){ return this.http.post(`/rooms/${code}/leave`); }
+  spectateRoom(code: string) { return this.http.post(`/rooms/${code}/spectate`); }
 
   // ---- Wallet ----
   getBalance()           { return this.http.get('/wallet/balance'); }

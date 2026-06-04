@@ -20,8 +20,8 @@ export default function LobbyPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied]  = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState('green');
-  const [joined, setJoined]  = useState(false);
   const [starting, setStarting] = useState(false);
+  const [error, setError] = useState('');
   const socketRef = useRef<Socket | null>(null);
 
   // Load room
@@ -39,8 +39,7 @@ export default function LobbyPage() {
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      socket.emit('room:join', { roomCode: code });
-      setJoined(true);
+      socket.emit('room:watch', { roomCode: code });
     });
 
     socket.on('room.player.joined',  ({ room }) => setRoom(room));
@@ -48,6 +47,7 @@ export default function LobbyPage() {
     socket.on('room.player.ready',   ({ room }) => setRoom(room));
     socket.on('room.game.starting',  () => {});
     socket.on('game.started',        ({ gameId }) => router.push(`/game/${gameId}`));
+    socket.on('game.error',          ({ message }) => setError(message || 'Lobby action failed'));
 
     return () => { socket.disconnect(); };
   }, [user, authLoading, code]);
@@ -71,9 +71,14 @@ export default function LobbyPage() {
 
   async function handleSpectate() {
     try {
-      const { data } = await api.joinRoom(code);
+      const { data } = await api.spectateRoom(code);
       router.push(`/game/${data.gameId}?spectator=true`);
     } catch {}
+  }
+
+  function handleJoin() {
+    setError('');
+    socketRef.current?.emit('room:join', { roomCode: code, avatar: selectedAvatar });
   }
 
   if (loading || authLoading) return <LoadingScreen />;
@@ -99,6 +104,11 @@ export default function LobbyPage() {
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(124,58,237,0.15) 0%, transparent 60%), radial-gradient(circle at 70% 50%, rgba(245,158,11,0.08) 0%, transparent 60%)', filter: 'blur(1px)' }} />
 
           <div className="animate-slide-up" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+            {error && (
+              <div style={{ maxWidth: 420, margin: '0 auto 1rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', color: 'var(--red-neg)', fontSize: '0.87rem' }}>
+                {error}
+              </div>
+            )}
             {isInGame ? (
               <>
                 <div style={{ marginBottom: '1rem', color: 'var(--purple-light)' }}><GamepadIcon size={64} /></div>
@@ -124,8 +134,12 @@ export default function LobbyPage() {
                   ))}
                 </div>
 
-                {!myPlayer ? (
-                  <button onClick={() => socketRef.current?.emit('room:join', { roomCode: code, avatar: selectedAvatar })} className="btn-primary" style={{ fontSize: '1.05rem', padding: '0.85rem 2.5rem', borderRadius: '50px', gap: '0.75rem' }}>
+                {!user ? (
+                  <button onClick={() => router.push('/auth/login')} className="btn-primary" style={{ fontSize: '1.05rem', padding: '0.85rem 2.5rem', borderRadius: '50px', gap: '0.75rem' }}>
+                    Log in to join
+                  </button>
+                ) : !myPlayer ? (
+                  <button onClick={handleJoin} className="btn-primary" style={{ fontSize: '1.05rem', padding: '0.85rem 2.5rem', borderRadius: '50px', gap: '0.75rem' }}>
                     Join game →
                   </button>
                 ) : (
